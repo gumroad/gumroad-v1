@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+	"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>{% if title %}{{ title }}{% else %}Gumroad - share and sell your digital goods.{% endif %}</title>
+
+<link href='http://fonts.googleapis.com/css?family=Cabin:regular,bold' rel='stylesheet' type='text/css'>
+<link type="text/css" rel="stylesheet" href="/static/css/reset.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/main.css" />
+
+<meta property="og:site_name" content="Gumroad" />
+<meta property="og:title" content="Gumroad" />
+<meta property="og:url" content="http://gumroad.com/" />
+<meta property="og:type" content="website" />
+<meta property="og:description" content="Share and sell your digital goods with just a link." />
+<!--<meta property="og:image" content="http://lts.cr.s3.amazonaws.com/media/img/crate_75-final.png" />-->
+<meta property="fb:page_id" content="http://www.facebook.com/pages/Gumroad/207002865984963" />
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+<script type='text/javascript' src='/static/js/jquery.tipsy.js'></script>
+<link rel="stylesheet" href="/static/css/tipsy.css" type="text/css" />
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-3109196-41']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+</head>
+<body{% if body_id %} id="{{ body_id }}"{% endif %}>
+	
+<div id="wrapper">
+	<div id="header-bar">
+		<div id="one"></div>
+		<div id="two"></div>
+		<div id="three"></div>
+		<div id="four"></div>
+		<div id="five"></div>
+	</div>
+	<div id="progress"></div>
+	
+	<div id="header-wrapper">	
+	<div id="header">
+		<ul>
+			{% if show_login_link %}
+			<li>Have an account? <a href="/login">Login!</a></li>
+			{% else %}
+			{% if logged_in %}
+			<li><a href="/account">Account</a> <span class="light" style="margin: 0 10px 0 0;">&bull;</span> <span class="balance">${{ user_balance }}</span> <span class="light">&bull;</span> <a href="/logout">Logout</a></li>			
+			{% else %}
+			<li>Thanks for using Gumroad! <a href="mailto:hi@gumroad.com">Feedback?</a></li>
+			{% endif %}
+			{% endif %}
+		</ul>
+		<a href="/" id="logo"><h1>Gumroad</h1></a>
+		<h2 class="cabin">{% if user_name %}{{user_name}} is sharing {{ name }} with you! {% else %} You're being shared {{ name }}! {% endif %}</h2>
+	</div>
+	
+	<script type="text/javascript">
+
+		$(document).ready(function(){
+
+			var progress = 0;
+			var date_month_progress = 0;
+			var date_year_progress = 0;
+			var progress_string = '0%';
+
+			function monitor()
+			{				
+				progress = 0;
+				if ($("#card_number").val().length > 7) { progress += 34; }
+				if ($("#card_security_code").val().length > 2) { progress += 34; }
+				progress = progress + date_year_progress + date_month_progress;
+				
+				animate_progress();
+			}
+			
+			$('#date_month').change(function() {
+				date_month_progress = 17; 
+				animate_progress();
+			});
+			
+			$('#date_year').change(function() {
+				date_year_progress = 17; 
+				animate_progress();
+			});
+			
+			$("#card_number").keyup(monitor);
+			$("#card_security_code").keyup(monitor);
+			
+			$("#submit_button").click(function() {
+				$("#progress").animate({
+					'width': '100%'
+				}, 1000, function() {
+					//animation complete.
+				});
+			});
+			
+			function animate_progress()
+			{								
+				progress = Math.min(progress, 100)	
+				progress_string = progress + '%';
+						
+				$("#progress").animate({
+					'width': progress_string
+				}, 1000, function() {
+					console.log('animation complete');
+				});
+			}
+						
+			$('form').submit(function() {
+				process_payment();
+				return false;
+			});
+			
+
+			function process_payment() {
+								
+				$('#payment-box h2').text('Processing...');
+				$('#payment-box h2').removeClass('error');
+				$.post("/l/{{permalink}}", $("#payment-form").serialize(), 
+				function(data){
+					if (data.success)
+					{
+						$('#payment-box h2').text('Success! Redirecting...');
+						window.location.href = data.redirect_url;
+					} else {
+						$('#payment-box h2').text(data.error_message);
+						$('#payment-box h2').addClass('error');
+					}
+				});					
+			}
+			
+		    $('#card_number').tipsy({trigger: 'focus', gravity: 'w', html: 'true'});
+		    $('#card_security_code').tipsy({trigger: 'focus', gravity: 'w', html: 'true'});
+
+		});
+
+	</script>
+	
+	
+	{% if show_description %}
+		<div id="description-box">
+			<p>{{description}}</p>
+		</div>
+	{% endif %}
+	
+	<div id="payment-box">
+		<h2 class="cabin">Pay ${{ price }} to be redirected to it:</h2>
+		<form id="payment-form" name="payment-form" action="" method="post">
+			
+			<p>
+				<label for="card_number">Card Number:</label>
+				<input id="card_number" name="card_number" placeholder="Card number" title="We do <em>not</em> store this! We charge your card and that's it." size="30" type="text" {% if card_number %}value="{{card_number}}"{% endif %}/>
+			</p>		
+		
+			<p id="expiry_p">
+				<label for="date_month">Card Expiry Date:</label>
+					<select id="date_month" name="date_month">
+						<option {% ifequal expiry_month 1 %}selected="selected"{% endifequal %} value="1">January</option>
+						<option {% ifequal expiry_month 2 %}selected="selected"{% endifequal %} value="2">February</option>
+						<option {% ifequal expiry_month 3 %}selected="selected"{% endifequal %} value="3">March</option>
+						<option {% ifequal expiry_month 4 %}selected="selected"{% endifequal %} value="4">April</option>
+						<option {% ifequal expiry_month 5 %}selected="selected"{% endifequal %} value="5">May</option>
+						<option {% ifequal expiry_month 6 %}selected="selected"{% endifequal %} value="6">June</option>
+						<option {% ifequal expiry_month 7 %}selected="selected"{% endifequal %} value="7">July</option>
+						<option {% ifequal expiry_month 8 %}selected="selected"{% endifequal %} value="8">August</option>
+						<option {% ifequal expiry_month 9 %}selected="selected"{% endifequal %} value="9">September</option>
+						<option {% ifequal expiry_month 10 %}selected="selected"{% endifequal %} value="10">October</option>
+						<option {% ifequal expiry_month 11 %}selected="selected"{% endifequal %} value="11">November</option>
+						<option {% ifequal expiry_month 12 %}selected="selected"{% endifequal %} value="12">December</option>	
+					  </select> / <select id="date_year" name="date_year">
+						<option {% ifequal expiry_year 2011 %}selected="selected"{% endifequal %} value="2011">2011</option>
+						<option {% ifequal expiry_year 2012 %}selected="selected"{% endifequal %} value="2012">2012</option>
+						<option {% ifequal expiry_year 2013 %}selected="selected"{% endifequal %} value="2013">2013</option>
+						<option {% ifequal expiry_year 2014 %}selected="selected"{% endifequal %} value="2014">2014</option>
+						<option {% ifequal expiry_year 2015 %}selected="selected"{% endifequal %} value="2015">2015</option>
+						<option {% ifequal expiry_year 2016 %}selected="selected"{% endifequal %} value="2016">2016</option>
+						<option {% ifequal expiry_year 2017 %}selected="selected"{% endifequal %} value="2017">2017</option>
+						<option {% ifequal expiry_year 2018 %}selected="selected"{% endifequal %} value="2018">2018</option>
+						<option {% ifequal expiry_year 2019 %}selected="selected"{% endifequal %} value="2019">2019</option>
+						<option {% ifequal expiry_year 2020 %}selected="selected"{% endifequal %} value="2020">2020</option>
+						<option {% ifequal expiry_year 2021 %}selected="selected"{% endifequal %} value="2021">2021</option>
+						<option {% ifequal expiry_year 2022 %}selected="selected"{% endifequal %} value="2022">2022</option>
+						<option {% ifequal expiry_year 2023 %}selected="selected"{% endifequal %} value="2023">2023</option>
+						<option {% ifequal expiry_year 2024 %}selected="selected"{% endifequal %} value="2024">2024</option>
+						<option {% ifequal expiry_year 2025 %}selected="selected"{% endifequal %} value="2025">2025</option>
+						<option {% ifequal expiry_year 2026 %}selected="selected"{% endifequal %} value="2026">2026</option>
+						<option {% ifequal expiry_year 2027 %}selected="selected"{% endifequal %} value="2027">2027</option>
+						<option {% ifequal expiry_year 2028 %}selected="selected"{% endifequal %} value="2028">2028</option>
+						<option {% ifequal expiry_year 2029 %}selected="selected"{% endifequal %} value="2029">2029</option>
+						<option {% ifequal expiry_year 2030 %}selected="selected"{% endifequal %} value="2030">2030</option>
+						</select>
+				</p>
+				
+				<p>
+					<label for="card_security_code">Card Security Code:</label>
+					<input id="card_security_code" name="card_security_code" placeholder="Security code" title="We do <em>not</em> store this either!" size="10" type="text" {% if cvv %}value="{{cvv}}"{% endif %}/>
+				</p>
+				
+				<p class="last-p"><button type="submit" id="submit_button">Go!</button></p>
+		</form> 		
+	</div>
+</div>
+
+	<div id="footer-wrapper">
+	<div id="footer">
+		<p>Copyright &copy; 2011 <a href="http://little.bigthin.gs/">Little Big Things, LLC</a>.</p>
+		<p>A project by <a href="http://sahillavingia.com/">Sahil Lavingia</a>.</p>
+	</div>
+	</div>
+
+</div>
+
+</body>
+</html>

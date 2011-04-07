@@ -1,0 +1,24 @@
+application: gumroad
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+    
+- url: /static/css
+  static_dir: static/css
+  
+- url: /static/js
+  static_dir: static/js
+ 
+- url: /favicon.ico
+  static_files: static/images/favicon.ico
+  upload: static/images/favicon.ico
+
+
+- url: /static/images
+  static_dir: static/images
+
+- url: .*
+  script: main.py
+  secure: optional
