@@ -1,0 +1,37 @@
+{% include "includes/header.html" %}
+
+<div id="main-wrapper">
+	<div id="main">
+		{% include "includes/navigation.html" %}
+		<div id="main-body">
+			<div id="link-form">
+			{% if show_error %}
+			<h2 class="cabin error">{{ error_message }}</h2>
+			{% else %}
+			<h2 class="cabin">Your account details:</h2>
+			{% endif %}
+			<form action="/account" method="post">
+				<p>
+					<label for="name">Name:</label>
+					<input id="name" name="name" type="text" placeholder="full name" {% if name %}value="{{ name }}"{% endif %} />
+				</p>
+				<p>
+					<label for="email">Email Address:</label>
+					<input id="email" name="email" type="text" placeholder="email address" {% if email %}value="{{ email }}"{% endif %} />
+				</p>
+				<p>
+					<label for="payment_address">PayPal Email:</label>
+					<input id="payment_address" name="payment_address" type="text" placeholder="paypal address" {% if payment_address %}value="{{ payment_address }}"{% endif %} />
+				</p>
+				
+				<!-- TODO: edit password -->			    
+				
+				<p class="last-p"><button type="submit">Update Account Details</button></p>
+			</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% include "includes/footer.html" %}
+

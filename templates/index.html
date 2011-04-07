@@ -1,0 +1,34 @@
+{% include "includes/header.html" %}
+
+	<div id="main-wrapper">
+	<div id="main">
+	
+		<div id="intro">
+            <ol>                    
+                <li><div id="stepone" class="list-number">1</div><h3 class="cabin">Take a file or a link of value.</h3><p>This can be anything. From a link to an exclusive build of an app, to a secret blog post, to an icon you spent hours designing.</p></li> 
+                <li><div id="steptwo" class="list-number">2</div><h3 class="cabin">Share it.</h3><p>Just like any old link. Choose your own price. You don't have to create a store. And you don't have to do <em>any</em> management. <a href="http://gumroad.com/l/hjbaod">Click here</a> for an example.</p></li> 
+                <li><div id="stepthree" class="list-number">3</div><h3 class="cabin">Make money.</h3><p>And that's it. At the end of each month we'll deposit the money you've earned to your PayPal account.</p></li> 
+            </ol>
+		</div>
+		<div id="main-page-form">
+			{% if show_error %}
+			<h2 class="cabin error">{{ error_message }}</h2>
+			{% else %}
+			<h2 class="cabin">Create an account in seconds:</h2>
+			{% endif %}
+			<form action="/" method="post">
+				<p>
+					<label for="email">Email address:</label>
+					<input name="email" type="text" placeholder="email address" {% if email_address %}value="{{email_address}}"{% endif %} />
+				</p>
+				<p>
+					<label for="password">Password:</label>
+					<input name="password" type="password" placeholder="password" />
+				</p>
+				<p class="last-p"><button type="submit">Start Making Money</button></p>
+			</form>
+		</div>
+	</div>
+	</div>
+
+{% include "includes/footer.html" %}
