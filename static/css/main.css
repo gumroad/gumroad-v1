@@ -471,8 +471,7 @@ input[type=file] {
 	border-radius: 15px;
 	-webkit-border-radius: 15px;
     -moz-border-radius: 15px;
-    background: #f9f9f9;
-    
+    background: #f9f9f9;    
     text-align: center;
     position: relative;
 }

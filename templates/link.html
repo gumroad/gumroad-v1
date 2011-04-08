@@ -3,6 +3,7 @@
 <script type="text/javascript">
 
 	$(document).ready(function(){
+<<<<<<< HEAD
 				
 		$("#delete_link").click(function(){
 			show_confirm();
@@ -12,6 +13,17 @@
 			$(".share_link").select();
 		});
 		
+=======
+
+		$("#delete_link").click(function(){
+			show_confirm();
+		});
+
+		$(".share_link").click(function(){
+			$(".share_link").select();
+		});
+
+>>>>>>> 6dd9d4f159d79ddc2b7ce5d91479901e185597f2
 		function show_confirm()
 		{
 			var r=confirm("Are you sure you want to delete this link? There's no going back!");
@@ -19,6 +31,7 @@
 				post_to_url('/delete/{{ permalink }}');
 			}
 		}
+<<<<<<< HEAD
 		
 		function createUploader(){
             var uploader = new qq.FileUploader({
@@ -49,6 +62,38 @@
         }
 
         createUploader();
+=======
+
+		function createUploader(){
+        var uploader = new qq.FileUploader({
+          element: document.getElementById('file-uploader'),
+          action: '/upload',
+          sizeLimit: 1024*1024,
+          debug: true,
+          onSubmit: function(id, fileName){
+            $(".qq-upload-button").text("Uploading...");
+          },
+          onProgress: function(id, fileName, loaded, total){
+            $(".qq-upload-button").text("Uploading...");					
+          },
+          onCancel: function(id, fileName){
+            $(".qq-upload-button").text("Upload a file");
+          },
+          onComplete: function(id, fileName, responseJSON) {	
+            $(".qq-upload-button").text("Link added!");
+            var url_string = $.parseJSON(responseJSON)['file']['short_url'];
+            if ($.parseJSON(responseJSON)['status'] == 'success')
+            {
+              $('#url').val(url_string);
+            } else {
+              $(".qq-upload-button").text("Something went wrong.");
+            }
+          }
+        });
+      }
+
+      createUploader();
+>>>>>>> 6dd9d4f159d79ddc2b7ce5d91479901e185597f2
 
 	});
 
@@ -120,7 +165,7 @@
 					<label for="url">URL:</label>
 					<input id="url" name="url" type="text" placeholder="http://" {% if url %}value="{{ url }}"{% endif %} />
 				</p>
-				<!--<p>
+				<p>
 					<label for="file">or upload a file:</label>
 					<span id="file-uploader-wrapper">
 					<span id="file-uploader">		
@@ -129,7 +174,7 @@
 						</noscript>         
 					</span>
 					</span>
-				</p>-->
+				</p>
 				<p>
 					<label for="description">Description: <span class="faint">(optional)</span></label>
 					<textarea id="description" name="description">{% if description %}{{ description }}{% endif %}</textarea>
