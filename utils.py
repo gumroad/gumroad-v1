@@ -16,7 +16,6 @@ def post_multipart(host, selector, fields, files):
     h = httplib.HTTP(host)
     h.putrequest('POST', selector)
     h.putheader('Content-Type', content_type)
-    h.putheader('Content-Length', str(len(body)))
     h.putheader('Authorization', authheader)
     h.endheaders()
     h.send(body)
