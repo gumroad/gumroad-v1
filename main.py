@@ -474,8 +474,9 @@ class AddLinkHandler(webapp.RequestHandler):
             url = cgi.escape(self.request.get('url'))
             description = cgi.escape(self.request.get('description'))
 
-            if float(price) < 0.99 and not float(price) == 0:
-                price = str(0.99)
+            if not price == None and not price == '':
+                if float(price) < 0.99 and not float(price) == 0:
+                    price = str(0.99)
 
             if not name or not price or not url:
     	        error_message = 'Fill in the whole form please!'

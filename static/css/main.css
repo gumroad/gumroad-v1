@@ -105,6 +105,8 @@ a:hover { text-decoration: underline; }
 	{
 		border-top: 1px #eee solid;
 		border-radius: 99px;
+		-webkit-border-radius: 99px;
+        -moz-border-radius: 99px;
 		background: #f5f5f5;
 	}
 		
@@ -144,6 +146,8 @@ a:hover { text-decoration: underline; }
 	text-indent: 0;
 	height: 14px; width: 14px;
 	text-align: center;
+    -webkit-border-radius: 99px;
+    -moz-border-radius: 99px;
 	border-radius: 99px;
 	font-family: Georgia, Times, "Times New Roman", serif;
 	float: left;
@@ -160,6 +164,8 @@ a:hover { text-decoration: underline; }
 	width: 458px;
 	margin-left: -462px;
 	border-radius: 15px;
+	-webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
 	margin-top: 10px;
 	background: #f9f9f9;
 	border: 2px dashed #eee;
@@ -282,6 +288,8 @@ input[type=file] {
 	width: 250px;
 	margin-right: -254px;
 	border-radius: 15px;
+	-webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
 	background: #f9f9f9;
 	border: 2px dashed #eee;
 	padding-bottom: 15px;
@@ -347,12 +355,13 @@ input[type=file] {
 
 #home #dashboard {
     float: right;
-/*    min-height: 300px; */
     margin-left: 254px;
     width: 680px;
     padding: 20px 0 10px;
 	border-radius: 15px;
-	background: #f9f9f9;
+	-webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    background: #f9f9f9;
 }
 
 #main-body h2, #dashboard h2 {
@@ -382,6 +391,8 @@ input[type=file] {
     padding: 20px 0 0;
     margin-left: 20px;
 	border-radius: 15px;
+	-webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
 	background: #f9f9f9;
 }
 
@@ -458,7 +469,9 @@ input[type=file] {
     margin-left: 20px;
     margin-bottom: 20px;
 	border-radius: 15px;
-	background: #f9f9f9;
+	-webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    background: #f9f9f9;
     
     text-align: center;
     position: relative;
@@ -489,6 +502,7 @@ input[type=file] {
     text-decoration: none;
     font-weight: bold;
     line-height: 1;
+    border-radius: 5px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
