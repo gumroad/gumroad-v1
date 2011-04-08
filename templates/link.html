@@ -143,14 +143,14 @@
 			
 			<div id="link-form">
 			{% if show_error %}
-			<h2 class="cabin error">{{ error_message }}</h2>
+				<h2 class="cabin error">{{ error_message }}</h2>
 			{% else %}
-			{% if editing %}
-			<a href="#" id="delete_link">delete</a>
-			<h2 class="cabin">Edit link:</h2>
-			{% else %}			
-			<h2 class="cabin">Create a new link:</h2>
-			{% endif %}
+				{% if editing %}
+				<a href="#" id="delete_link">delete</a>
+				<h2 class="cabin">Edit link:</h2>
+				{% else %}			
+				<h2 class="cabin">Create a new link:</h2>
+				{% endif %}
 			{% endif %}
 			<form action="/{% if editing %}{{ permalink }}{% else %}add{% endif %}" method="post">
 				<p>
