@@ -60,10 +60,20 @@ $(document).ready(function() {
 	    $("#gumroad-modal-pay-button").text('Paying securely...');
 	    
 	    $.post("https://gumroad.appspot.com/api/purchase/", {id: item_id, testing: "1", card_number: cc_number, date_month: cc_month, date_year: cc_year, card_security_code: cc_code}, function(data) {
-            alert(data);
+	        result = data;
+	        
+	        if (data['status'] == 'failure') {
+	            alert(data['error_message']);
+	        } else {
+	            $("#gumroad-modal-pay-button").text('Paid!');
+	            var final_url = data['redirect_url'];
+	            window.open(final_url,"linkwindow");
+	            
+	            $('#gumroad-modal-overlay').delay(1000).hide_gumroad_modal();
+	        }
         });        
 	}
-	
+
     //For debugging.
 	show_gumroad_modal();
 });
