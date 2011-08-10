@@ -7,6 +7,7 @@ import urllib
 import unicodedata
 import logging
 import datetime
+import time
 import re
 import collections
 import base64
@@ -213,7 +214,6 @@ class LoginHandler(webapp.RequestHandler):
                 user_from_db = users_from_db.get()
 
                 if sha256(password).hexdigest() == user_from_db.password:
-
                     try:
                         s = sessions.Session()
                         s["user"] = email
@@ -1339,6 +1339,107 @@ class LinkHandler(webapp.RequestHandler):
                             'show_error': True
                         }))
 
+SIMPLE_TYPES = (int, long, float, bool, dict, basestring, list)
+
+def to_dict(model):
+    output = {}
+
+    for key, prop in model.properties().iteritems():
+        value = getattr(model, key)
+
+        if value is None or isinstance(value, SIMPLE_TYPES):
+            output[key] = value
+        elif isinstance(value, datetime.date):
+            # Convert date/datetime to ms-since-epoch ("new Date()").
+            ms = time.mktime(value.utctimetuple()) * 1000
+            ms += getattr(value, 'microseconds', 0) / 1000
+            output[key] = int(ms)
+        elif isinstance(value, db.GeoPt):
+            output[key] = {'lat': value.lat, 'lon': value.lon}
+        elif isinstance(value, db.Model):
+            output[key] = to_dict(value)
+        else:
+            raise ValueError('cannot encode ' + repr(prop))
+
+    return output
+
+class ApiLinkStatsHandler(webapp.RequestHandler):
+    def get(self, permalink, email, password):
+        email = urllib.unquote(email).decode('utf8')
+        password = password.rstrip("/")
+
+        user = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = email).get()
+        link = db.GqlQuery("SELECT * FROM Link WHERE unique_permalink = :permalink AND owner = :email", permalink = permalink, email = email).get()
+
+        if not link:
+            self.response.headers['Content-Type'] = 'application/json'
+            return self.response.out.write(json.dumps({
+                'status': 'failure',
+                'error_message': 'Link with that id does not exist.'
+            }))
+        else:
+            if sha256(password).hexdigest() != user.password:
+                self.response.headers['Content-Type'] = 'application/json'
+                return self.response.out.write(json.dumps({
+                    'status': 'failure',
+                    'error_message': 'Credentials did not match.'
+                }))
+
+        user_dict = to_dict(user)
+        link_dict = to_dict(link)
+
+        del user_dict['reset_hash']
+        del user_dict['password']
+
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps({
+            'status': 'success',
+            'user': user_dict,
+            'link': link_dict
+        }))
+
+class ApiStatsHandler(webapp.RequestHandler):    
+    def get(self, email, password):
+        email = urllib.unquote(email).decode('utf8')
+        password = password.rstrip("/")
+        
+        user = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = email).get()
+        links = db.GqlQuery("SELECT * FROM Link WHERE owner = :email", email = email).fetch(999)
+
+        if not user:
+            self.response.headers['Content-Type'] = 'application/json'
+            return self.response.out.write(json.dumps({
+                'status': 'failure',
+                'error_message': 'User with that email does not exist.'
+            }))
+        else:
+            if sha256(password).hexdigest() != user.password:
+                self.response.headers['Content-Type'] = 'application/json'
+                return self.response.out.write(json.dumps({
+                    'status': 'failure',
+                    'error_message': 'Credentials did not match.'
+                }))
+                
+        user_dict = to_dict(user)
+        link_dicts = [to_dict(link) for link in links]
+
+        del user_dict['reset_hash']
+        del user_dict['password']
+                
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps({
+            'status': 'success',
+            'user': user_dict,
+            'links': link_dicts
+        }))
+        
+    def post(self, email, password):
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps({
+            'status': 'failure',
+            'error_message': 'Must use GET for this method.'
+        }))
+        
 class StatsHandler(webapp.RequestHandler):
     def get(self):
         links_from_db = Link.all().fetch(9999)
@@ -1456,6 +1557,10 @@ def main():
                                     	  ('/confirm/(\S+)/$', ConfirmPaypalHandler),
                                     	  ('/api/create$', ApiCreateLinkHandler),
                                     	  ('/api/create/$', ApiCreateLinkHandler),
+                                    	  ('/api/link/stats/(\S+)/(\S+)/(\S+)$', ApiLinkStatsHandler),
+                                    	  ('/api/link/stats/(\S+)/(\S+)/(\S+)/$', ApiLinkStatsHandler),
+                                    	  ('/api/user/stats/(\S+)/(\S+)$', ApiStatsHandler),
+                                    	  ('/api/user/stats/(\S+)/(\S+)/$', ApiStatsHandler),
                                     	  ('/api/purchase$', ApiPurchaseLinkHandler),
                                     	  ('/api/purchase/$', ApiPurchaseLinkHandler),
                                     	  ('/edit/(\S+)$', EditLinkHandler),
