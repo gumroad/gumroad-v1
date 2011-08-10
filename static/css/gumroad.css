@@ -1,0 +1,120 @@
+#gumroad-modal-overlay {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    z-index: 999;
+    position: fixed;
+    width: 100%; height: 100%;
+    background: rgba(255, 255, 255, .6);
+}
+
+    #gumroad-modal-overlay a {
+        text-decoration: none;
+    }
+
+#gumroad-modal {
+    overflow: hidden;
+    margin: 200px auto 0;
+    width: 500px;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+}
+
+#gumroad-modal-extra-copy {
+    overflow: hidden;
+    color: #fff;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
+    text-align: center;
+    margin: 10px auto 0;
+}
+
+#gumroad-modal-header {
+    overflow: hidden;
+    clear: both;
+    background: #e3e3e3;
+    border-bottom: 1px solid #c7c7c7;
+    padding: 10px 10px 8px;
+}
+
+    #gumroad-modal-header h3 {
+        font-size: 18px;
+        margin: 0;
+        float: left; color: #6d6d6d;
+        font-weight: normal;
+        text-shadow: 0 1px 0 #fff;
+    }
+
+    #gumroad-modal-header a {
+        font-size: 17px;
+        color: #fff; font-weight: bold;
+        float: right;
+    }
+
+#gumroad-modal-form { }
+
+    #gumroad-modal-form p {
+        clear: both; overflow: hidden;
+        margin: 15px 15px 15px 0;
+    }
+
+    #gumroad-modal-form label {
+        float: left;
+        text-align: right;
+        width: 125px;
+        padding-top: 10px;
+        font-size: 16px; font-weight: bold;
+        color: #6d6d6d;
+    }
+    
+    #expiry_p { overflow: hidden; }
+    #expiry_p span { position: relative; top: 6px; }
+    
+    #gumroad-modal-form #date_month, #gumroad-modal-form #date_year {
+        position: relative; top: 6px;
+        font-size: 16px;
+        margin: 0 8px;
+    }
+        #gumroad-modal-form #date_month { margin-left: 15px; }
+    
+    #gumroad-modal-form input[type=text] {
+        color: #6d6d6d;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-size: 16px;
+        float: right;
+        border-radius: 4px;
+        width: 320px;
+        outline: 0; border: 0;
+        padding: 12px;
+        background: #f2f2f2;
+        box-shadow:inset 0 1px 2px rgba(0, 0, 0, .2);
+        border: 2px solid white;
+    }
+
+        #gumroad-modal-form input[type=text]:focus {
+            border: 2px solid #aaa;
+        }
+
+#gumroad-modal-footer {
+    clear: both; overflow: hidden;
+    border-top: 1px solid #c7c7c7;
+    background: #e3e3e3;
+    padding: 20px 10px;
+    text-align: center;
+}
+
+    #gumroad-modal-footer a {
+        color: #6d6d6d; font-weight: bold; font-size: 18px;
+        text-shadow: 0 1px 0 #fff;
+        padding: 10px 14px;
+        border-radius: 99px;
+        background: rgba(0, 0, 0, .1);
+    }
+    
+    #gumroad-modal-footer a:hover { color: #444; }
+    #gumroad-modal-footer a:active { color: #444; box-shadow:inset 0 1px 2px rgba(0, 0, 0, .2); text-indent }
+    
+#gumroad-modal .gradient {
+	background: -webkit-gradient(linear, left top, left bottom, from(#e9e9e9), to(#dedede));
+	background: -moz-linear-gradient(top, #e9e9e9, #dedede);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#e9e9e9ff, endColorstr=#dededeff);
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#e9e9e9ff, endColorstr=#dededeff)";
+}
