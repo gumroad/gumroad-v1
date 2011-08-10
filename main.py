@@ -931,7 +931,7 @@ class ApiPurchaseLinkHandler(webapp.RequestHandler):
                         self.response.headers['Content-Type'] = 'application/json'
                         self.response.out.write(json.dumps({
                             'status': 'failure',
-                            'error_message': 'Please double-check your card details:',
+                            'error_message': 'Please double-check your card details.',
                             'show_error': True
                         }))
 

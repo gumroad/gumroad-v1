@@ -61,15 +61,18 @@ $(document).ready(function() {
 	    
 	    $.post("https://gumroad.appspot.com/api/purchase/", {id: item_id, testing: "1", card_number: cc_number, date_month: cc_month, date_year: cc_year, card_security_code: cc_code}, function(data) {
 	        result = data;
-	        
+	
 	        if (data['status'] == 'failure') {
+	            $("#gumroad-modal-pay-button").text('Pay');
 	            alert(data['error_message']);
 	        } else {
-	            $("#gumroad-modal-pay-button").text('Paid!');
-	            var final_url = data['redirect_url'];
-	            window.open(final_url,"linkwindow");
+	            $("#gumroad-modal-pay-button").text('Paid! Download started...');
+
+                $("body").append('<iframe width="1" height="1" frameborder="0" src="' + data['redirect_url'] + '"></iframe>');
 	            
-	            $('#gumroad-modal-overlay').delay(1000).hide_gumroad_modal();
+	            $(document).delay(2000, function(){
+	                hide_gumroad_modal();
+	            });
 	        }
         });        
 	}
