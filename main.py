@@ -822,6 +822,7 @@ class ApiPurchaseLinkHandler(webapp.RequestHandler):
         if links_from_db.count() == 0:
             self.response.headers['Content-Type'] = 'application/json'
             self.response.out.write(json.dumps({
+                'status': 'failure',
                 'error_message': 'That link does not exist.',
                 'show_error': True
             }))
@@ -856,13 +857,15 @@ class ApiPurchaseLinkHandler(webapp.RequestHandler):
             if not card_number or not cvv:
                 self.response.headers['Content-Type'] = 'application/json'
                 self.response.out.write(json.dumps({
-                    'error_message': 'Fill in the whole form please!',
+                    'status': 'failure',
+                    'error_message': 'Specify your card details, please!',
                     'show_error': True
                 }))
             else:       
                 if link.number_of_downloads >= link.download_limit and link.download_limit > 0:
                     self.response.headers['Content-Type'] = 'application/json'
                     self.response.out.write(json.dumps({
+                        'status': 'failure',
                         'error_message': 'This link has hit its download limit. Sorry!',
                         'show_error': True
                     }))   
@@ -920,12 +923,14 @@ class ApiPurchaseLinkHandler(webapp.RequestHandler):
                         else:
                             self.response.headers['Content-Type'] = 'application/json'
                             self.response.out.write(json.dumps({
+                                'status': 'failure',
                                 'error_message': 'Your payment didn\'t go through! Please double-check your card details:',
                                 'show_error': True
                             }))
                     except:
                         self.response.headers['Content-Type'] = 'application/json'
                         self.response.out.write(json.dumps({
+                            'status': 'failure',
                             'error_message': 'Please double-check your card details:',
                             'show_error': True
                         }))
