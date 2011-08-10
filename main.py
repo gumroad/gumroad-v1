@@ -807,6 +807,30 @@ class ApiCreateLinkHandler(webapp.RequestHandler):
                     'url': link_to_share(link.unique_permalink)
                 }))
 
+class ApiPurchaseLinkHandler(webapp.RequestHandler):
+    def get(self):
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps({
+            'status': 'failure',
+            'error_message': 'Must use POST for this method.'
+        }))
+    def post(self):
+        url = self.request.url.replace('api/purchase/', 'l/' + self.request.get('id') + '/')
+
+        arguments = {}
+
+        for argument in self.request.arguments():            
+            arguments[argument] = self.request.get(argument)
+
+        form_data = urllib.urlencode(arguments)
+        result = urlfetch.fetch(url=url,
+                                payload=form_data,
+                                method=urlfetch.POST,
+                                headers={'Content-Type': 'application/x-www-form-urlencoded'})
+
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(result.content)
+
 class AccountHandler(webapp.RequestHandler):
     def get(self):
         email = get_user()
@@ -837,11 +861,16 @@ class AccountHandler(webapp.RequestHandler):
     def post(self):
         email = get_user()
 
-        if not email:
+        if not email:            
             self.redirect("/")
         else:
             user = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = email).get()
             links = db.GqlQuery("SELECT * FROM Link WHERE owner = :email", email = email).fetch(999)
+            
+            if not user:
+                email = cgi.escape(self.request.get('email'))
+                user = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = email).get()
+                links = db.GqlQuery("SELECT * FROM Link WHERE owner = :email", email = email).fetch(999)
 
             request = self.request
             name = cgi.escape(self.request.get('name'))
@@ -855,6 +884,13 @@ class AccountHandler(webapp.RequestHandler):
                 user.email = email
                 user.name = name
                 user.payment_address = payment_address
+                
+                try:
+                    s = sessions.Session()
+                    s["user"] = email
+                except:
+                    pass
+                
                 user.put()
                 success = True
 
@@ -1086,11 +1122,14 @@ class LinkHandler(webapp.RequestHandler):
             self.response.out.write(template.render(path, template_values))
 
     def post(self, permalink):
-
         links_from_db = db.GqlQuery("SELECT * FROM Link WHERE unique_permalink = :permalink", permalink = permalink)
 
         if links_from_db.count() == 0:
-            self.redirect("/")
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.out.write(json.dumps({
+                'error_message': 'That link does not exist.',
+                'show_error': True
+            }))
         else:
             link = links_from_db.get()
             link.number_of_views += 1
@@ -1107,6 +1146,7 @@ class LinkHandler(webapp.RequestHandler):
             error_message = ''
 
             request = self.request
+            logging.debug('Start guestbook signing request')
             card_number = cgi.escape(self.request.get('card_number'))
             expiry_month = cgi.escape(self.request.get('date_month'))
             expiry_year = cgi.escape(self.request.get('date_year'))
@@ -1134,8 +1174,13 @@ class LinkHandler(webapp.RequestHandler):
                 else:               
                     #Stripe payments!
                     identifier = link.unique_permalink + ' ' + str(link.number_of_views)
-                    client = stripe.Client('T10Jab3Cir6v3SJFMooSKTdGNUERR4jh')
-                    cents = int(link.price*100)
+                    if cgi.escape(self.request.get('testing')):
+                        client = stripe.Client('QK2oOnsS6r7os8hJGeQMMiNHElZDpCwr')
+                    else:
+                        client = stripe.Client('T10Jab3Cir6v3SJFMooSKTdGNUERR4jh')
+                        
+                    cents = int(link.price*100)    
+                    
                     try:
                         resp = client.execute(amount=cents, currency='usd', card={'number': card_number, 'exp_month': expiry_month, 'exp_year': expiry_year}, identifier=identifier)
 
@@ -1307,6 +1352,8 @@ def main():
                                     	  ('/confirm/(\S+)/$', ConfirmPaypalHandler),
                                     	  ('/api/create$', ApiCreateLinkHandler),
                                     	  ('/api/create/$', ApiCreateLinkHandler),
+                                    	  ('/api/purchase$', ApiPurchaseLinkHandler),
+                                    	  ('/api/purchase/$', ApiPurchaseLinkHandler),
                                     	  ('/edit/(\S+)$', EditLinkHandler),
                                     	  ('/edit/(\S+)/$', EditLinkHandler),
                                     	  ('/.*', NotFoundPageHandler)],
