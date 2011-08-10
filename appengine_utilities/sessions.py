@@ -139,7 +139,12 @@ class _AppEngineUtilities_Session(db.Model):
  
         # Not in memcache, check datastore
         
-        ds_session = db.get(str(session_key))
+        try:
+          ds_session = db.get(str(session_key))
+        except:
+          ds_session = None
+        
+#       ds_session = db.get(str(session_key))
         if ds_session:
           sessionAge = datetime.datetime.now() - ds_session.last_activity
           if sessionAge.seconds > session_obj.session_expire_time:

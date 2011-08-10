@@ -11,6 +11,9 @@ handlers:
 - url: /static/js
   static_dir: static/js
  
+- url: /downloads
+  static_dir: downloads
+ 
 - url: /favicon.ico
   static_files: static/images/favicon.ico
   upload: static/images/favicon.ico
@@ -18,6 +21,9 @@ handlers:
 
 - url: /static/images
   static_dir: static/images
+
+- url: /static/fancybox
+  static_dir: static/fancybox
 
 - url: .*
   script: main.py

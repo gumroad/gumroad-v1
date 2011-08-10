@@ -23,11 +23,12 @@ from django.utils import simplejson as json
 from google.appengine.ext import db
 from appengine_utilities import sessions
 from hashlib import sha256
+from google.appengine.api import mail
 
+import paypal
 import stripe
 
 from utils import post_multipart
-
 
 class Link(db.Model):
     owner = db.StringProperty(required=True)
@@ -40,6 +41,7 @@ class Link(db.Model):
     length_of_exclusivity = db.IntegerProperty(default=0)
     number_of_paid_downloads = db.IntegerProperty(default=0)
     number_of_downloads = db.IntegerProperty(default=0)
+    download_limit = db.IntegerProperty(default=0)
     number_of_views = db.IntegerProperty(default=0)
     balance = db.FloatProperty(default=0.00)
 
@@ -48,6 +50,13 @@ class Purchase(db.Model):
     unique_permalink = db.StringProperty(required=True)
     price = db.FloatProperty(required=True)
     create_date = db.DateTimeProperty(auto_now_add=True)
+    
+class PayPalToken(db.Model):
+    owner = db.StringProperty(required=True)
+    unique_permalink = db.StringProperty(required=True)
+    url = db.StringProperty(required=True)
+    token = db.StringProperty(required=True)
+    price = db.FloatProperty(required=True, default=1.00)
 
 class Permalink(db.Model):
     permalink = db.StringProperty(required=True)
@@ -57,6 +66,7 @@ class User(db.Model):
     payment_address = db.StringProperty()
     name = db.StringProperty()
     password = db.StringProperty(required=True)
+    reset_hash = db.StringProperty()
     create_date = db.DateTimeProperty(auto_now_add=True)
     balance = db.FloatProperty(default=0.00)
 
@@ -87,10 +97,26 @@ class MainHandler(webapp.RequestHandler):
                 user = User(email=email, password=sha256(password).hexdigest())
                 user.number_of_links = 0
                 user.balance = 0.00
+                
+                x = 1
+                while x == 1:
+                    permalink = "".join([random.choice(string.letters[:26]) for i in xrange(6)])
+                    new_permalink = Permalink(permalink=permalink)
+                    permalinks_from_db = db.GqlQuery("SELECT * FROM Permalink WHERE permalink = :permalink", permalink = permalink)
+                    if permalinks_from_db.count() == 0:
+                        new_permalink.put()
+                        x = 0
+                
+                user.reset_hash = permalink
                 user.put()
 
-                s = sessions.Session()
-                s["user"] = email
+                failing = True
+                
+                try:
+                    s = sessions.Session()
+                    s["user"] = email
+                except:
+                    pass
 
                 success = True
             else:
@@ -139,6 +165,14 @@ def plural(int):
 def link_to_share(unique_permalink):
     return 'http://gumroad.com/l/' + unique_permalink
     #return 'https://gumroad.appspot.com/l/' + unique_permalink
+    
+def secure_link_to_share(unique_permalink):
+    #return 'http://gumroad.com/l/' + unique_permalink
+    return 'https://gumroad.appspot.com/l/' + unique_permalink
+
+def confirm_link_to_share(unique_permalink):
+    #return 'http://gumroad.com/l/' + unique_permalink
+    return 'https://gumroad.appspot.com/confirm/' + unique_permalink
 
 class LogoutHandler(webapp.RequestHandler):
     def get(self):
@@ -179,9 +213,15 @@ class LoginHandler(webapp.RequestHandler):
                 user_from_db = users_from_db.get()
 
                 if sha256(password).hexdigest() == user_from_db.password:
-                    s = sessions.Session()
-                    s["user"] = email
+
+                    try:
+                        s = sessions.Session()
+                        s["user"] = email
+                    except:
+                        pass
+                            
                     success = True
+                    
                 else:
                     success = False
                     error_message = "Wrong credentials, please try again!"
@@ -198,6 +238,148 @@ class LoginHandler(webapp.RequestHandler):
 		        }
 
             path = os.path.join(os.path.dirname(__file__), 'templates/login.html')
+            self.response.out.write(template.render(path, template_values))
+
+class ForgotPasswordHandler(webapp.RequestHandler):
+    def get(self):
+
+        template_values = {
+		    'show_login_link': False,
+	        'body_id': 'login',
+	        'title': 'Gumroad / Forgotten Password'
+		}
+
+        path = os.path.join(os.path.dirname(__file__), 'templates/forgot-password.html')
+        self.response.out.write(template.render(path, template_values))
+
+    def post(self):
+        request = self.request
+        email = cgi.escape(request.get('email'))
+
+        if not email:
+            success = False
+            error_message = 'Fill in the form please!'
+        else:
+            users_from_db = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = email)
+            if users_from_db.count() == 0:
+                error_message = "That email address isn't being used!"
+                success = False
+            else:
+                success_message = "Check your email!"
+                success = True
+                
+                user = users_from_db.get()
+                reset_hash = "".join([random.choice(string.letters[:26]) for i in xrange(6)])
+                user.reset_hash = reset_hash
+                user.put()
+
+                message = mail.EmailMessage(sender="Sahil @ Gumroad <sahil@slavingia.com>",
+                                            subject="Gumroad password reset!")
+                message.to = email
+
+                message.body="""
+                Hi!
+
+                You recently asked for a password reset. Please visit
+                http://gumroad.com/reset-password/%s to
+                reset your password.
+
+                So sorry for the inconvenience!
+                
+                Please let us know if you have any questions,
+                The Gumroad Team
+                """ % reset_hash
+                                
+                try:
+                    message.send()
+                except:
+                    error_message = "Something bad happened! Working on it."
+                    success = False
+
+        if success:
+            template_values = {
+		        'show_login_link': False,
+		        'show_error': False,
+		        'email_address': email,
+		        'body_id': 'login',
+		        'success_message': success_message
+		        }
+
+            path = os.path.join(os.path.dirname(__file__), 'templates/forgot-password.html')
+            self.response.out.write(template.render(path, template_values))
+    	else:
+            template_values = {
+		        'show_login_link': False,
+		        'show_error': True,
+		        'email_address': email,
+		        'body_id': 'login',
+		        'error_message': error_message
+		        }
+
+            path = os.path.join(os.path.dirname(__file__), 'templates/forgot-password.html')
+            self.response.out.write(template.render(path, template_values))
+
+class ResetPasswordHandler(webapp.RequestHandler):
+    def get(self, reset_hash):
+
+        users_from_db = db.GqlQuery("SELECT * FROM User WHERE reset_hash = :reset_hash", reset_hash = reset_hash)
+        
+        if users_from_db.count() > 0:
+            user = users_from_db.get()
+            email = user.email
+        else:
+            error_message = 'Wrong reset link, sorry!'
+            email = ''
+            success = False
+
+        template_values = {
+		    'show_login_link': False,
+	        'body_id': 'login',
+	        'email_address': email,
+	        'reset_hash': reset_hash,
+	        'title': 'Gumroad / Reset Password'
+		}
+
+        path = os.path.join(os.path.dirname(__file__), 'templates/reset-password.html')
+        self.response.out.write(template.render(path, template_values))
+
+    def post(self, reset_hash):
+        request = self.request
+        email = cgi.escape(self.request.get('email'))
+        password = cgi.escape(self.request.get('password'))
+
+        if not email or not password:
+	        error_message = 'Fill in the form please!'
+	        success = False
+        else:
+            users_from_db = db.GqlQuery("SELECT * FROM User WHERE email = :email AND reset_hash = :reset_hash", email = email, reset_hash = reset_hash)
+            if users_from_db.count() == 0:
+                error_message = 'Something went wrong, sorry!'
+    	        success = False
+            else:
+                user = users_from_db.get()
+                user.password = password=sha256(password).hexdigest()
+                user.put()
+
+                s = sessions.Session()
+                s["user"] = email
+
+                success = True
+
+        if success:
+            self.redirect("/home")
+    	else:
+            template_values = {
+		        'show_login_link': False,
+		        'title': 'Gumroad / Reset Password',
+    	        'show_error': True,
+		        'email_address': email,
+    	        'reset_hash': reset_hash,
+    	        'body_id': 'login',
+		        'error_message': error_message
+		        }
+
+            path = os.path.join(os.path.dirname(__file__), 'templates/reset-password.html')
             self.response.out.write(template.render(path, template_values))
 
 class HomeHandler(webapp.RequestHandler):
@@ -234,6 +416,7 @@ class HomeHandler(webapp.RequestHandler):
             for purchase in month_purchases:
                 bins.setdefault(purchase.create_date.date(), []).append(purchase)
 
+            #todo: make sure right amount of days and create bins for each day, even days with 0 sales.
             counts = collections.defaultdict(int)
             for purchase in seven_days_purchases:
                 counts[purchase.create_date.date()] += 1
@@ -241,7 +424,10 @@ class HomeHandler(webapp.RequestHandler):
             chart_numbers = []
 
             for k, v in counts.iteritems():
-                chart_numbers.append(v)
+                if int(v) > 0:
+                    chart_numbers.append(v)
+                else:
+                    chart_numbers.append('0')
 
             chart_numbers[0:14]
 
@@ -251,6 +437,8 @@ class HomeHandler(webapp.RequestHandler):
             else:
                 chart_max = 0
                 show_chart = False
+                
+            chart_length = len(chart_numbers)
 
             chart_numbers = ",".join([str(x) for x in chart_numbers])
 
@@ -265,7 +453,7 @@ class HomeHandler(webapp.RequestHandler):
     	        'number_of_links': len(links),
     	        'links': links,
     	        'purchases': all_purchases,
-    	        'number_of_days': len(chart_numbers),
+    	        'number_of_days': chart_length,
     	        's': s,
     	        'chart_numbers': chart_numbers,
     	        'chart_max': chart_max,
@@ -323,6 +511,7 @@ class EditLinkHandler(webapp.RequestHandler):
                     'price': '$' + formatted_price(link.price),
                     'views': link.number_of_views,
                     'number_of_downloads': link.number_of_downloads,
+                    'download_limit': link.download_limit,
                     'total_profit': '$' + formatted_price(link.balance),
                     'conversion': conversion,
                     'hundred_minus_conversion': hundred_minus_conversion,
@@ -357,13 +546,10 @@ class EditLinkHandler(webapp.RequestHandler):
         price = cgi.escape(request.get('price'))
         non_decimal = re.compile(r'[^\d.]+')
         price = non_decimal.sub('', price)
-        logging.debug(price)
-
-        if float(price) < 0.99 and not float(price) == 0:
-            price = str(0.99)
 
         url = cgi.escape(request.get('url'))
         description = cgi.escape(request.get('description'))
+        download_limit = cgi.escape(request.get('download_limit'))
 
         success = False
 
@@ -371,6 +557,10 @@ class EditLinkHandler(webapp.RequestHandler):
             error_message = 'Fill in the whole form please!'
             success = False
         else:
+            
+            if float(price) < 0.99 and not float(price) == 0:
+                price = str(0.99)
+                        
             if eval(price) > 999:
                 error_message = 'We don\'t support prices that high yet!'
     	        success = False
@@ -385,6 +575,11 @@ class EditLinkHandler(webapp.RequestHandler):
                 else:
                     link.owner = email
                     link.name = name
+                    
+                    if download_limit == '' or download_limit == None:
+                        download_limit = 0
+                    
+                    link.download_limit = int(download_limit)
                     link.description = description
                     link.url = url
                     link.price = float(price)
@@ -392,7 +587,7 @@ class EditLinkHandler(webapp.RequestHandler):
                     success = True
 
         if success:
-            self.redirect("/" + permalink)
+            self.redirect("/edit/" + permalink)
     	else:
             template_values = {
     	        'name': name,
@@ -400,6 +595,7 @@ class EditLinkHandler(webapp.RequestHandler):
     	        'price': '$' + price,
     	        'url': url,
     	        'description': description,
+                'download_limit': link.download_limit,
                 'link_to_share': link_to_share(permalink),
     	        'show_login_link': False,
     	        'editing': True,
@@ -480,13 +676,14 @@ class AddLinkHandler(webapp.RequestHandler):
             url = cgi.escape(self.request.get('url'))
             description = cgi.escape(self.request.get('description'))
 
-            if float(price) < 0.99 and not float(price) == 0:
-                price = str(0.99)
-
             if not name or not price or not url:
     	        error_message = 'Fill in the whole form please!'
     	        success = False
             else:
+                                
+                if float(price) < 0.99 and not float(price) == 0:
+                    price = str(0.99)
+                
                 if eval(price) > 999:
                     error_message = 'We don\'t support prices that high yet!'
                     success = False
@@ -512,7 +709,7 @@ class AddLinkHandler(webapp.RequestHandler):
                     success = True
 
             if success:
-                self.redirect("/" + permalink)
+                self.redirect("/edit/" + permalink)
             else:
                 template_values = {
     		        'name': name,
@@ -533,6 +730,82 @@ class AddLinkHandler(webapp.RequestHandler):
 
                 path = os.path.join(os.path.dirname(__file__), 'templates/link.html')
                 self.response.out.write(template.render(path, template_values))
+
+class ApiCreateLinkHandler(webapp.RequestHandler):
+    def get(self):
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps({
+            'status': 'failure',
+            'error_message': 'Must use POST for this method.'
+        }))
+    def post(self):
+        email = self.request.get('email')
+        password = self.request.get('password')
+                
+        user = db.GqlQuery("SELECT * FROM User WHERE email = :email AND password = :password", email = email, password = sha256(password).hexdigest()).get()
+
+        if user == None:
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.out.write(json.dumps({
+                'status': 'failure',
+                'error_message': 'User does not exist. Double-check credentials.'
+            }))
+        else:
+            request = self.request
+            name = cgi.escape(self.request.get('name'))
+            price = cgi.escape(self.request.get('price'))
+            non_decimal = re.compile(r'[^\d.]+')
+            price = non_decimal.sub('', price)
+            url = cgi.escape(self.request.get('url'))
+            description = cgi.escape(self.request.get('description'))
+
+            link = db.GqlQuery("SELECT * FROM Link WHERE url = :url AND owner = :owner", url = url, owner = email).get()
+            
+            if link == None:
+                if not name or not price or not url:
+                    self.response.headers['Content-Type'] = 'application/json'
+                    self.response.out.write(json.dumps({
+                        'status': 'failure',
+                        'error_message': 'Parameters missing. Need name, URL, and price.'
+                    }))
+                else:
+                            
+                    if float(price) < 0.99 and not float(price) == 0:
+                        price = str(0.99)
+            
+                    if eval(price) > 999:
+                        self.response.headers['Content-Type'] = 'application/json'
+                        self.response.out.write(json.dumps({
+                            'status': 'failure',
+                            'error_message': 'We don\'t support prices that high yet.'
+                        }))
+                    else:
+                        price = '%.3g' % (eval(price))
+
+                        x = 1
+                        while x == 1:
+                            permalink = "".join([random.choice(string.letters[:26]) for i in xrange(6)])
+                            new_permalink = Permalink(permalink=permalink)
+                            permalinks_from_db = db.GqlQuery("SELECT * FROM Permalink WHERE permalink = :permalink", permalink = permalink)
+                            if permalinks_from_db.count() == 0:
+                                new_permalink.put()
+                                x = 0
+
+                        new_link = Link(owner=email, name=name, url=url, price=float(price), unique_permalink=permalink)
+                        new_link.description = description
+                        new_link.put()
+
+                        self.response.headers['Content-Type'] = 'application/json'
+                        self.response.out.write(json.dumps({
+                            'status': 'success',
+                            'url': link_to_share(permalink)
+                        }))
+            else:
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.out.write(json.dumps({
+                    'status': 'success',
+                    'url': link_to_share(link.unique_permalink)
+                }))
 
 class AccountHandler(webapp.RequestHandler):
     def get(self):
@@ -609,6 +882,163 @@ class AccountHandler(webapp.RequestHandler):
                 path = os.path.join(os.path.dirname(__file__), 'templates/account.html')
                 self.response.out.write(template.render(path, template_values))
 
+class ConfirmPaypalHandler(webapp.RequestHandler):
+    def get(self, permalink):
+        link = db.GqlQuery("SELECT * FROM Link WHERE unique_permalink = :permalink", permalink = permalink).get()
+        token_from_db = db.GqlQuery("SELECT * FROM PayPalToken WHERE unique_permalink = :permalink", permalink = permalink).get()
+        
+        if link == None or token_from_db == None:
+            self.redirect('/')
+        else:                                
+            live_details = {
+                'USER': 'hi_api1.gumroad.com',
+                'PWD': 'YV5JPWQ82Y94QKQ2',
+                'SIGNATURE': 'ACXdMRUVYdl2qjmy4bdvUB4tjmOdAqw-OBf6..cJoqJvjIuP9.RTfXLt',
+                'TOKEN': self.request.get('token'),
+                'PAYERID': self.request.get('PayerID')
+            }
+            
+            sandbox_details = {
+                'USER': 'sahil_1302387692_biz_api1.slavingia.com',
+                'PWD': '1302387704',
+                'SIGNATURE': 'AOPiL3Poyt2B15q5ShGBjL13Y0HpAPunEIy2.7fVjA5gyQHYvn3fnL.x',
+                'TOKEN': self.request.get('token'),
+                'PAYERID': self.request.get('PayerID')
+            }
+
+            #sandbox_url = 'https://api-3t.sandbox.paypal.com/nvp?METHOD=SetExpressCheckoutPayment&VERSION=63.0&' + urllib.urlencode(sandbox_details) + '&PAYMENTREQUEST_0_AMT=' + formatted_price(link.price) + '&PAYMENTREQUEST_0_PAYMENTACTION=Sale'
+            live_url = 'https://api-3t.paypal.com/nvp?METHOD=DoExpressCheckoutPayment&VERSION=64.0&' + urllib.urlencode(live_details) + '&PAYMENTREQUEST_0_AMT=' + formatted_price(link.price) + '&PAYMENTREQUEST_0_PAYMENTACTION=Sale'
+
+            success = False
+
+            #result = urlfetch.fetch(sandbox_url)
+            try:
+                result = urlfetch.fetch(live_url)
+                
+                if result.status_code == 200:
+                    logging.debug(result.content)
+                    logging.debug(urldecode(result.content)['ACK'][0])
+                    if urldecode(result.content)['ACK'][0] == 'Success':
+                        success = True                
+            except:
+                success = True
+
+            if success:                
+                link.number_of_paid_downloads += 1
+                link.number_of_downloads += 1
+                link.balance += link.price
+                link.put()
+
+                user = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = link.owner).get()
+
+                user.balance += link.price
+                user.put()
+
+                new_purchase = Purchase(owner=link.owner, price=float(link.price), unique_permalink=link.unique_permalink)
+                new_purchase.put()
+
+                message = mail.EmailMessage(sender="Sahil @ Gumroad <sahil@slavingia.com>",
+                                            subject="You just sold a link!")
+                message.to = user.email
+
+                message.body="""
+                Hi!
+
+                You just sold %s. Please visit
+                http://gumroad.com/home to check it out.
+
+                Congratulations on the sale!
+
+                Please let us know if you have any questions,
+                The Gumroad Team
+                """ % link.name
+
+                try:
+                    message.send()
+                except:
+                    pass
+                
+                db.delete(token_from_db)
+                
+                self.redirect(link.url)
+            else:
+                self.redirect('/')
+        
+class PaypalHandler(webapp.RequestHandler):
+    def post(self, permalink):
+        links_from_db = db.GqlQuery("SELECT * FROM Link WHERE unique_permalink = :permalink", permalink = permalink)
+
+        if links_from_db.count() == 0:
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.out.write(json.dumps({
+                'error_message': 'Link doesn\'t exist!',
+                'show_error': True
+            }))
+        else:
+            link = links_from_db.get()
+            user = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = link.owner).get()   
+
+            if link.number_of_downloads >= link.download_limit and link.download_limit > 0:
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.out.write(json.dumps({
+                    'error_message': 'This link has hit its download limit. Sorry!',
+                    'show_error': True
+                }))   
+            else:
+                live_details = {
+                    'USER': 'hi_api1.gumroad.com',
+                    'PWD': 'YV5JPWQ82Y94QKQ2',
+                    'SIGNATURE': 'ACXdMRUVYdl2qjmy4bdvUB4tjmOdAqw-OBf6..cJoqJvjIuP9.RTfXLt',
+                    'ORDERTOTAL': formatted_price(link.price),
+                    'RETURNURL': confirm_link_to_share(permalink),
+                    'CANCELURL': secure_link_to_share(permalink)
+                }
+            
+                sandbox_details = {
+                    'USER': 'sahil_1302387692_biz_api1.slavingia.com',
+                    'PWD': '1302387704',
+                    'SIGNATURE': 'AOPiL3Poyt2B15q5ShGBjL13Y0HpAPunEIy2.7fVjA5gyQHYvn3fnL.x',
+                    'ORDERTOTAL': formatted_price(link.price),
+                    'RETURNURL': confirm_link_to_share(permalink),
+                    'CANCELURL': secure_link_to_share(permalink)
+                }
+
+                #sandbox_url = 'https://api-3t.sandbox.paypal.com/nvp?METHOD=SetExpressCheckout&VERSION=63.0&' + urllib.urlencode(sandbox_details) + '&PAYMENTREQUEST_0_AMT=' + formatted_price(link.price) + '&PAYMENTREQUEST_0_PAYMENTACTION=Sale'
+                live_url = 'https://api-3t.paypal.com/nvp?METHOD=SetExpressCheckout&VERSION=64.0&' + urllib.urlencode(live_details) + '&PAYMENTREQUEST_0_AMT=' + formatted_price(link.price) + '&PAYMENTREQUEST_0_PAYMENTACTION=Sale'
+
+                #result = urlfetch.fetch(sandbox_url)
+                result = urlfetch.fetch(live_url)
+           
+                if result.status_code == 200:
+                
+                    paypal_token = PayPalToken(owner=link.owner, price=float(link.price), unique_permalink=link.unique_permalink, url = link.url, token = urldecode(result.content)['TOKEN'][0])
+                    paypal_token.put()
+                              
+                    self.response.headers['Content-Type'] = 'application/json'
+                    self.response.out.write(json.dumps({
+                        'success': True,
+                        'redirect_url': 'https://www.paypal.com/webscr?cmd=_express-checkout&token=' + urldecode(result.content)['TOKEN'][0]
+                    }))
+                else:                
+                    self.response.headers['Content-Type'] = 'application/json'
+                    self.response.out.write(json.dumps({
+                        'error_message': 'Something went wrong.',
+                        'show_error': True
+                    }))
+                  
+def urldecode(query): 
+   d = {} 
+   a = query.split('&') 
+   for s in a: 
+      if s.find('='): 
+         k,v = map(urllib.unquote, s.split('=')) 
+         try: 
+            d[k].append(v) 
+         except KeyError: 
+            d[k] = [v] 
+   return d 
+
+                                                            
 class LinkHandler(webapp.RequestHandler):
     def get(self, permalink):
 
@@ -694,45 +1124,71 @@ class LinkHandler(webapp.RequestHandler):
                     'error_message': 'Fill in the whole form please!',
                     'show_error': True
                 }))
-            else:
-                #Stripe payments!
-                identifier = link.unique_permalink + ' ' + str(link.number_of_views)
-                client = stripe.Client('T10Jab3Cir6v3SJFMooSKTdGNUERR4jh')
-                cents = int(link.price*100)
-                try:
-                    resp = client.execute(amount=cents, currency='usd', card={'number': card_number, 'exp_month': expiry_month, 'exp_year': expiry_year}, identifier=identifier)
-                    logging.debug(resp.dict)
-                    logging.debug(resp.dict['paid'])
-
-                    if resp.dict['paid']:
-                        link.number_of_paid_downloads += 1
-                        link.number_of_downloads += 1
-                        link.balance += link.price
-                        link.put()
-
-                        user.balance += link.price
-                        user.put()
-
-                        new_purchase = Purchase(owner=link.owner, price=float(link.price), unique_permalink=link.unique_permalink)
-                        new_purchase.put()
-
-                        self.response.headers['Content-Type'] = 'application/json'
-                        self.response.out.write(json.dumps({
-                            'success': True,
-                            'redirect_url': link.url
-                        }))
-                    else:
-                        self.response.headers['Content-Type'] = 'application/json'
-                        self.response.out.write(json.dumps({
-                            'error_message': 'Your payment didn\'t go through! Please double-check your card details:',
-                            'show_error': True
-                        }))
-                except:
+            else:       
+                if link.number_of_downloads >= link.download_limit and link.download_limit > 0:
                     self.response.headers['Content-Type'] = 'application/json'
                     self.response.out.write(json.dumps({
-                        'error_message': 'Please double-check your card details:',
+                        'error_message': 'This link has hit its download limit. Sorry!',
                         'show_error': True
-                    }))
+                    }))   
+                else:               
+                    #Stripe payments!
+                    identifier = link.unique_permalink + ' ' + str(link.number_of_views)
+                    client = stripe.Client('T10Jab3Cir6v3SJFMooSKTdGNUERR4jh')
+                    cents = int(link.price*100)
+                    try:
+                        resp = client.execute(amount=cents, currency='usd', card={'number': card_number, 'exp_month': expiry_month, 'exp_year': expiry_year}, identifier=identifier)
+
+                        if resp.dict['paid']:
+                            link.number_of_paid_downloads += 1
+                            link.number_of_downloads += 1
+                            link.balance += link.price
+                            link.put()
+
+                            user.balance += link.price
+                            user.put()
+
+                            new_purchase = Purchase(owner=link.owner, price=float(link.price), unique_permalink=link.unique_permalink)
+                            new_purchase.put()
+
+                            message = mail.EmailMessage(sender="Sahil @ Gumroad <sahil@slavingia.com>",
+                                                        subject="You just sold a link!")
+                            message.to = user.email
+
+                            message.body="""
+                            Hi!
+
+                            You just sold %s. Please visit
+                            http://gumroad.com/home to check it out.
+
+                            Congratulations on the sale!
+
+                            Please let us know if you have any questions,
+                            The Gumroad Team
+                            """ % link.name
+
+                            try:
+                                message.send()
+                            except:
+                                pass
+
+                            self.response.headers['Content-Type'] = 'application/json'
+                            self.response.out.write(json.dumps({
+                                'success': True,
+                                'redirect_url': link.url
+                            }))
+                        else:
+                            self.response.headers['Content-Type'] = 'application/json'
+                            self.response.out.write(json.dumps({
+                                'error_message': 'Your payment didn\'t go through! Please double-check your card details:',
+                                'show_error': True
+                            }))
+                    except:
+                        self.response.headers['Content-Type'] = 'application/json'
+                        self.response.out.write(json.dumps({
+                            'error_message': 'Please double-check your card details:',
+                            'show_error': True
+                        }))
 
 class StatsHandler(webapp.RequestHandler):
     def get(self):
@@ -787,11 +1243,34 @@ class AboutHandler(webapp.RequestHandler):
     def get(self):
 
         template_values = {
+            'title': 'About Gumroad',
             'body_id': 'static-content'
         }
 
         path = os.path.join(os.path.dirname(__file__), 'templates/about.html')
         self.response.out.write(template.render(path, template_values))
+
+class ElsewhereHandler(webapp.RequestHandler):
+    def get(self):
+
+        template_values = {
+            'title': 'Gumroad - Elsewhere',
+            'body_id': 'static-content'
+        }
+
+        path = os.path.join(os.path.dirname(__file__), 'templates/elsewhere.html')
+        self.response.out.write(template.render(path, template_values))
+        
+class NotFoundPageHandler(webapp.RequestHandler):
+    def get(self):
+        self.error(404)
+        template_values = {
+            'title': 'Gumroad - 404',
+            'body_id': 'visiting-link'
+        }
+        path = os.path.join(os.path.dirname(__file__), 'templates/404.html')
+        self.response.out.write(template.render(path, template_values))
+
 
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
@@ -799,6 +1278,7 @@ def main():
  	                                      ('/stats/', StatsHandler), ('/stats', StatsHandler),
                                     	  ('/faq', FAQHandler), ('/faq/', FAQHandler),
                                     	  ('/about', AboutHandler), ('/about/', AboutHandler),
+                                    	  ('/elsewhere', ElsewhereHandler), ('/elsewhere/', ElsewhereHandler),
                                    	      ('/login/', LoginHandler),
                                     	  ('/login', LoginHandler),
                                     	  ('/account/', AccountHandler),
@@ -811,12 +1291,25 @@ def main():
                                     	  ('/delete/(\S+)/$', DeleteHandler),
                                     	  ('/home/', HomeHandler),
                                     	  ('/home', HomeHandler),
+                                    	  ('/reset-password/(\S+)$', ResetPasswordHandler),
+                                    	  ('/reset-password/(\S+)/$', ResetPasswordHandler),                                          
+                                    	  ('/password-reset/(\S+)$', ResetPasswordHandler),
+                                    	  ('/password-reset/(\S+)/$', ResetPasswordHandler),                                          
+                                    	  ('/forgot-password/', ForgotPasswordHandler),
+                                    	  ('/forgot-password', ForgotPasswordHandler),
                                     	  ('/add/', AddLinkHandler),
                                     	  ('/add', AddLinkHandler),
                                     	  ('/l/(\S+)$', LinkHandler),
                                     	  ('/l/(\S+)/$', LinkHandler),
-                                    	  ('/(\S+)$', EditLinkHandler),
-                                    	  ('/(\S+)/$', EditLinkHandler)],
+                                    	  ('/paypal/(\S+)$', PaypalHandler),
+                                    	  ('/paypal/(\S+)/$', PaypalHandler),
+                                    	  ('/confirm/(\S+)$', ConfirmPaypalHandler),
+                                    	  ('/confirm/(\S+)/$', ConfirmPaypalHandler),
+                                    	  ('/api/create$', ApiCreateLinkHandler),
+                                    	  ('/api/create/$', ApiCreateLinkHandler),
+                                    	  ('/edit/(\S+)$', EditLinkHandler),
+                                    	  ('/edit/(\S+)/$', EditLinkHandler),
+                                    	  ('/.*', NotFoundPageHandler)],
                                          debug=True)
     util.run_wsgi_app(application)
 

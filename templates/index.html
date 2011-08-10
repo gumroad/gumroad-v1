@@ -3,12 +3,31 @@
 	<div id="main-wrapper">
 	<div id="main">
 	
+		<script type="text/javascript">
+		
+		$(document).ready(function() {
+			
+			$("#watch-video-link").fancybox({
+		        'autoScale'     	: true,
+		        'transitionIn'		: 'none',
+				'transitionOut'		: 'none',
+				'type'				: 'iframe'
+			});
+
+			function formatTitle(title, currentArray, currentIndex, currentOpts) {
+			    return '<div id="tip7-title"><span><a href="javascript:;" onclick="$.fancybox.close();"><img src="/data/closelabel.gif" /></a></span>' + (title && title.length ? '<b>' + title + '</b>' : '' ) + 'Image ' + (currentIndex + 1) + ' of ' + currentArray.length + '</div>';
+			}
+
+		});
+		</script>
+	
 		<div id="intro">
             <ol>                    
                 <li><div id="stepone" class="list-number">1</div><h3 class="cabin">Take a file or a link of value.</h3><p>This can be anything. From a link to an exclusive build of an app, to a secret blog post, to an icon you spent hours designing.</p></li> 
                 <li><div id="steptwo" class="list-number">2</div><h3 class="cabin">Share it.</h3><p>Just like any old link. Choose your own price. You don't have to create a store. And you don't have to do <em>any</em> management. <a href="http://gumroad.com/l/hjbaod">Click here</a> for an example.</p></li> 
-                <li><div id="stepthree" class="list-number">3</div><h3 class="cabin">Make money.</h3><p>And that's it. At the end of each month we'll deposit the money you've earned to your PayPal account.</p></li> 
+                <li><div id="stepthree" class="list-number">3</div><h3 class="cabin">Make money.</h3><p>And that's it. At the end of each month we'll deposit the money you've earned to your account.</p></li> 
             </ol>
+			<p id="watch-video">Still don't get it? <a href="http://www.youtube.com/embed/CJqWkcncOuY" class="iframe" id="watch-video-link">Watch a video</a>.</p>
 		</div>
 		<div id="main-page-form">
 			{% if show_error %}

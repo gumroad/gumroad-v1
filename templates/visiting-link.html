@@ -36,6 +36,8 @@
 
 </script>
 
+<meta name = "viewport" content = "initial-scale = 1.0, user-scalable = no">
+
 </head>
 <body{% if body_id %} id="{{ body_id }}"{% endif %}>
 	
@@ -122,13 +124,34 @@
 				process_payment();
 				return false;
 			});
-			
+
+			$('#paypal-link').click(function() {
+				process_paypal();
+				return false;
+			});			
 
 			function process_payment() {
 								
 				$('#payment-box h2').text('Processing...');
 				$('#payment-box h2').removeClass('error');
 				$.post("/l/{{permalink}}", $("#payment-form").serialize(), 
+				function(data){
+					if (data.success)
+					{
+						$('#payment-box h2').text('Success! Redirecting...');
+						window.location.href = data.redirect_url;
+					} else {
+						$('#payment-box h2').text(data.error_message);
+						$('#payment-box h2').addClass('error');
+					}
+				});					
+			}
+			
+			function process_paypal() {
+								
+				$('#payment-box h2').text('Doing magic...');
+				$('#payment-box h2').removeClass('error');
+				$.post("/paypal/{{permalink}}", $("#payment-form").serialize(), 
 				function(data){
 					if (data.success)
 					{
@@ -211,6 +234,8 @@
 				<p class="last-p"><button type="submit" id="submit_button">Go!</button></p>
 		</form> 		
 	</div>
+	
+	<p id="paypal-p"><span class="arrow">&uarr;</span> or you can <a href="#" id="paypal-link">pay using <strong>PayPal</strong>!</a></p>
 </div>
 
 	<div id="footer-wrapper">

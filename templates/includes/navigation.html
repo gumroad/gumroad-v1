@@ -3,7 +3,7 @@
 	<ul>
 		{% if number_of_links %}
 	    {% for link in links %}
-		<li><a href="/{{ link.unique_permalink }}">{{ link.name }}</a></li>			
+		<li><a href="/edit/{{ link.unique_permalink }}">{{ link.name }}</a></li>			
 		{% endfor %}
 		{% else %}
 		<li class="no-links">You don't have any links.</li>

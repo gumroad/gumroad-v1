@@ -36,10 +36,11 @@
 					$(".qq-upload-button").text("Upload a file");
 				},
 				onComplete: function(id, fileName, responseJSON) {	
-					$(".qq-upload-button").text("Link added!");
+//					alert(responseJSON);
 					var url_string = jQuery.parseJSON(responseJSON)['file']['short_url'];
 					if (jQuery.parseJSON(responseJSON)['status'] == 'success')
 					{
+						$(".qq-upload-button").text("Link added!");
 						$('#url').val(url_string);
 					} else {
 						$(".qq-upload-button").text("Something went wrong.");
@@ -95,6 +96,17 @@
 			
 			{% endif %}
 			
+			<script type="text/javascript">
+
+				$(document).ready(function(){
+
+				    $('#download_limit').tipsy({trigger: 'focus', gravity: 'w', html: 'true'});
+
+				});
+
+			</script>
+			
+			
 			<div id="link-form">
 			{% if show_error %}
 				<h2 class="cabin error">{{ error_message }}</h2>
@@ -106,7 +118,7 @@
 				<h2 class="cabin">Create a new link:</h2>
 				{% endif %}
 			{% endif %}
-			<form action="/{% if editing %}{{ permalink }}{% else %}add{% endif %}" method="post">
+			<form action="/{% if editing %}edit/{{ permalink }}{% else %}add{% endif %}" method="post">
 				<p>
 					<label for="name">Name:</label>
 					<input id="name" name="name" type="text" placeholder="name" {% if name %}value="{{ name }}"{% endif %} />
@@ -133,6 +145,16 @@
 					<label for="description">Description: <span class="faint">(optional)</span></label>
 					<textarea id="description" name="description">{% if description %}{{ description }}{% endif %}</textarea>
 				</p>
+				
+				{% if editing %}
+				<div id="link-options">
+					<h3 class="cabin">Additional link options:</h3>
+					<p>
+						<label for="download_limit">Download limit:</label>
+						<input id="download_limit" name="download_limit" type="text" placeholder="0" {% if download_limit %}value="{{ download_limit }}"{% endif %} title="The number of people that can purchase this item. 0 means <em>no limit</em>!"/>
+					</p>
+				</div>
+				{% endif %}
 				
 				<p class="last-p"><button type="submit">{% if editing %}Edit Link{% else %}Create Link!{% endif %}</button></p>
 			</form>
