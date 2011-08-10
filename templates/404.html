@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+	"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<title>{% if title %}{{ title }}{% else %}Gumroad - share and sell your digital goods.{% endif %}</title>
+
+<link href='http://fonts.googleapis.com/css?family=Cabin:regular,bold' rel='stylesheet' type='text/css'>
+<link type="text/css" rel="stylesheet" href="/static/css/reset.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/main.css" />
+
+<meta property="og:site_name" content="Gumroad" />
+<meta property="og:title" content="Gumroad" />
+<meta property="og:url" content="http://gumroad.com/" />
+<meta property="og:type" content="website" />
+<meta property="og:description" content="Share and sell your digital goods with just a link." />
+<!--<meta property="og:image" content="http://lts.cr.s3.amazonaws.com/media/img/crate_75-final.png" />-->
+<meta property="fb:page_id" content="http://www.facebook.com/pages/Gumroad/207002865984963" />
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+<script type='text/javascript' src='/static/js/jquery.tipsy.js'></script>
+<link rel="stylesheet" href="/static/css/tipsy.css" type="text/css" />
+
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-3109196-41']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+<meta name = "viewport" content = "initial-scale = 1.0, user-scalable = no">
+
+
+</head>
+<body{% if body_id %} id="{{ body_id }}"{% endif %}>
+	
+<div id="wrapper">
+	<div id="header-bar">
+		<div id="one"></div>
+		<div id="two"></div>
+		<div id="three"></div>
+		<div id="four"></div>
+		<div id="five"></div>
+	</div>
+	<div id="progress"></div>
+	
+	<div id="header-wrapper">	
+	<div id="header">
+		<ul>
+			{% if show_login_link %}
+			<li>Have an account? <a href="/login">Login!</a></li>
+			{% else %}
+			{% if logged_in %}
+			<li><a href="/account">Account</a> <span class="light" style="margin: 0 10px 0 0;">&bull;</span> <span class="balance">${{ user_balance }}</span> <span class="light">&bull;</span> <a href="/logout">Logout</a></li>			
+			{% else %}
+			<li>Thanks for using Gumroad! <a href="mailto:hi@gumroad.com">Feedback?</a></li>
+			{% endif %}
+			{% endif %}
+		</ul>
+		<a href="/" id="logo"><h1>Gumroad</h1></a>
+		<h2 class="cabin">You've reached a page that doesn't exist. <a href="/">Go home?</a></h2>
+	</div>
+	
+	<script type="text/javascript">
+
+		$(document).ready(function(){
+
+			var progress = 0;
+			var date_month_progress = 0;
+			var date_year_progress = 0;
+			var progress_string = '0%';
+
+			function monitor()
+			{				
+				progress = 0;
+				if ($("#card_number").val().length > 7) { progress += 34; }
+				if ($("#card_security_code").val().length > 2) { progress += 34; }
+				progress = progress + date_year_progress + date_month_progress;
+				
+				animate_progress();
+			}
+			
+			$('#date_month').change(function() {
+				date_month_progress = 17; 
+				animate_progress();
+			});
+			
+			$('#date_year').change(function() {
+				date_year_progress = 17; 
+				animate_progress();
+			});
+			
+			$("#card_number").keyup(monitor);
+			$("#card_security_code").keyup(monitor);
+			
+			$("#submit_button").click(function() {
+				$("#progress").animate({
+					'width': '100%'
+				}, 1000, function() {
+					//animation complete.
+				});
+			});
+			
+			function animate_progress()
+			{								
+				progress = Math.min(progress, 100)	
+				progress_string = progress + '%';
+						
+				$("#progress").animate({
+					'width': progress_string
+				}, 1000, function() {
+					console.log('animation complete');
+				});
+			}
+						
+			$('form').submit(function() {
+				process_payment();
+				return false;
+			});
+			
+
+			function process_payment() {
+								
+				$('#payment-box h2').text('Processing...');
+				$('#payment-box h2').removeClass('error');
+				$.post("/l/{{permalink}}", $("#payment-form").serialize(), 
+				function(data){
+					if (data.success)
+					{
+						$('#payment-box h2').text('Success! Redirecting...');
+						window.location.href = data.redirect_url;
+					} else {
+						$('#payment-box h2').text(data.error_message);
+						$('#payment-box h2').addClass('error');
+					}
+				});					
+			}
+			
+		    $('#card_number').tipsy({trigger: 'focus', gravity: 'w', html: 'true'});
+		    $('#card_security_code').tipsy({trigger: 'focus', gravity: 'w', html: 'true'});
+
+		});
+
+	</script>
+	
+	
+	{% if show_description %}
+		<div id="description-box">
+			<p>{{description}}</p>
+		</div>
+	{% endif %}
+	
+	<div id="four-oh-four"> 		
+		<h1>404</h1>
+	</div>
+	
+</div>
+
+	<div id="footer-wrapper" class="hidden">
+	<div id="footer">
+		<p>Copyright &copy; 2011 <a href="http://little.bigthin.gs/">Little Big Things, LLC</a>.</p>
+		<p>A project by <a href="http://sahillavingia.com/">Sahil Lavingia</a>.</p>
+	</div>
+	</div>
+
+</div>
+
+</body>
+</html>
