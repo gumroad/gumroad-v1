@@ -815,21 +815,120 @@ class ApiPurchaseLinkHandler(webapp.RequestHandler):
             'error_message': 'Must use POST for this method.'
         }))
     def post(self):
-        url = self.request.url.replace('api/purchase/', 'l/' + self.request.get('id') + '/')
+        permalink = self.request.get('id')
 
-        arguments = {}
+        links_from_db = db.GqlQuery("SELECT * FROM Link WHERE unique_permalink = :permalink", permalink = permalink)
 
-        for argument in self.request.arguments():            
-            arguments[argument] = self.request.get(argument)
+        if links_from_db.count() == 0:
+            self.response.headers['Content-Type'] = 'application/json'
+            self.response.out.write(json.dumps({
+                'error_message': 'That link does not exist.',
+                'show_error': True
+            }))
+        else:
+            link = links_from_db.get()
+            link.number_of_views += 1
+            link.put()
 
-        form_data = urllib.urlencode(arguments)
-        result = urlfetch.fetch(url=url,
-                                payload=form_data,
-                                method=urlfetch.POST,
-                                headers={'Content-Type': 'application/x-www-form-urlencoded'})
+            user = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = link.owner).get()
 
-        self.response.headers['Content-Type'] = 'application/json'
-        self.response.out.write(result.content)
+            if link.price < 0.01:
+                link.number_of_downloads += 1
+                link.put()
+                self.redirect(link.url)
+
+            show_error = False
+            error_message = ''
+
+            request = self.request
+            logging.debug('Start guestbook signing request')
+            card_number = cgi.escape(self.request.get('card_number'))
+            expiry_month = cgi.escape(self.request.get('date_month'))
+            expiry_year = cgi.escape(self.request.get('date_year'))
+            cvv = cgi.escape(self.request.get('card_security_code'))
+
+            non_decimal = re.compile(r'[^\d.]+')
+            card_number = non_decimal.sub('', card_number)
+            cvv = non_decimal.sub('', cvv)
+            expiry_month = non_decimal.sub('', expiry_month)
+            expiry_year = non_decimal.sub('', expiry_year)
+
+            if not card_number or not cvv:
+                self.response.headers['Content-Type'] = 'application/json'
+                self.response.out.write(json.dumps({
+                    'error_message': 'Fill in the whole form please!',
+                    'show_error': True
+                }))
+            else:       
+                if link.number_of_downloads >= link.download_limit and link.download_limit > 0:
+                    self.response.headers['Content-Type'] = 'application/json'
+                    self.response.out.write(json.dumps({
+                        'error_message': 'This link has hit its download limit. Sorry!',
+                        'show_error': True
+                    }))   
+                else:               
+                    #Stripe payments!
+                    identifier = link.unique_permalink + ' ' + str(link.number_of_views)
+                    if cgi.escape(self.request.get('testing')):
+                        client = stripe.Client('QK2oOnsS6r7os8hJGeQMMiNHElZDpCwr')
+                    else:
+                        client = stripe.Client('T10Jab3Cir6v3SJFMooSKTdGNUERR4jh')
+                        
+                    cents = int(link.price*100)    
+                    
+                    try:
+                        resp = client.execute(amount=cents, currency='usd', card={'number': card_number, 'exp_month': expiry_month, 'exp_year': expiry_year}, identifier=identifier)
+
+                        if resp.dict['paid']:
+                            link.number_of_paid_downloads += 1
+                            link.number_of_downloads += 1
+                            link.balance += link.price
+                            link.put()
+
+                            user.balance += link.price
+                            user.put()
+
+                            new_purchase = Purchase(owner=link.owner, price=float(link.price), unique_permalink=link.unique_permalink)
+                            new_purchase.put()
+
+                            message = mail.EmailMessage(sender="Sahil @ Gumroad <sahil@slavingia.com>",
+                                                        subject="You just sold a link!")
+                            message.to = user.email
+
+                            message.body="""
+                            Hi!
+
+                            You just sold %s. Please visit
+                            http://gumroad.com/home to check it out.
+
+                            Congratulations on the sale!
+
+                            Please let us know if you have any questions,
+                            The Gumroad Team
+                            """ % link.name
+
+                            try:
+                                message.send()
+                            except:
+                                pass
+
+                            self.response.headers['Content-Type'] = 'application/json'
+                            self.response.out.write(json.dumps({
+                                'success': True,
+                                'redirect_url': link.url
+                            }))
+                        else:
+                            self.response.headers['Content-Type'] = 'application/json'
+                            self.response.out.write(json.dumps({
+                                'error_message': 'Your payment didn\'t go through! Please double-check your card details:',
+                                'show_error': True
+                            }))
+                    except:
+                        self.response.headers['Content-Type'] = 'application/json'
+                        self.response.out.write(json.dumps({
+                            'error_message': 'Please double-check your card details:',
+                            'show_error': True
+                        }))
 
 class AccountHandler(webapp.RequestHandler):
     def get(self):
