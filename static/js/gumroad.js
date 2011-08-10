@@ -66,13 +66,7 @@ $(document).ready(function() {
 	            $("#gumroad-modal-pay-button").text('Pay');
 	            alert(data['error_message']);
 	        } else {
-	            $("#gumroad-modal-pay-button").text('Paid! Download started...');
-
-                $("body").append('<iframe width="1" height="1" frameborder="0" src="' + data['redirect_url'] + '"></iframe>');
-	            
-	            $(document).delay(2000, function(){
-	                hide_gumroad_modal();
-	            });
+	            $("#gumroad-modal-footer").html('<a id="gumroad-modal-pay-button" href="' + data['redirect_url'] + '">Download now</a>');	            
 	        }
         });        
 	}
