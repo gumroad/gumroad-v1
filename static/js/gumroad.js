@@ -59,7 +59,7 @@ $(document).ready(function() {
 	    
 	    $("#gumroad-modal-pay-button").text('Paying securely...');
 	    
-	    $.post("https://gumroad.appspot.com/api/purchase/", {id: item_id, testing: "1", card_number: cc_number, date_month: cc_month, date_year: cc_year, card_security_code: cc_code}, function(data) {
+	    $.post("https://gumroad.appspot.com/api/purchase/", {id: item_id, card_number: cc_number, date_month: cc_month, date_year: cc_year, card_security_code: cc_code}, function(data) {
 	        result = data;
 	
 	        if (data['status'] == 'failure') {
@@ -70,7 +70,4 @@ $(document).ready(function() {
 	        }
         });        
 	}
-
-    //For debugging.
-	show_gumroad_modal();
 });
