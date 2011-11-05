@@ -5,10 +5,6 @@ body {
 	background: #fff;
 }
 
-.cabin {
-	font-family: "Cabin", "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-
 p { line-height: 150%; }
 ul { list-style: none; }
 .hidden { display: none !important; }
@@ -36,9 +32,8 @@ a:hover { text-decoration: underline; }
 }
 
 #header {
-	min-width: 800px;
-	max-width: 960px;
-	width: 60%;
+	position: relative;
+	width: 960px;
 	margin: 0 auto;
 	overflow: hidden;
 	padding-bottom: 10px;
@@ -51,13 +46,12 @@ a:hover { text-decoration: underline; }
 		font-size: 3em;
 		color: #6A4A3C;
 		display: block;
-		margin: 25px auto 5px;
-		border-bottom: 1px dashed white;
+		margin: 20px auto 5px;
 	}
 	
 	#logo:hover { text-decoration: none; }
 	#logo:hover h1 { color: #333; }
-	
+
 	#header h2 {
 		clear: left; float: left;
 		margin-bottom: 15px;
@@ -66,11 +60,23 @@ a:hover { text-decoration: underline; }
 		color: #999;
 	}
 
-	#header ul {
-		margin-top: 40px;
+    .new h1 {
+        background: url(/static/images/gumroad.png);
+		text-indent: -9999px;
+		width: 344px; height: 79px;
+		margin: 19px auto 25px !important;
+    }
+
+    #logo-space { float: left; }
+
+    #header ul {
 		float: right;
+        margin-top: 40px;
 	}
 	
+    .new ul { margin-top: 45px !important; }
+    .new .slogan { top: 88px; left: 141px; position: absolute; }
+		
 	#footer ul {
 	    margin-top: 20px;
 	    float: left;
@@ -94,7 +100,7 @@ a:hover { text-decoration: underline; }
 	
 	#footer .faint {
 	    margin-left: 15px;
-	}
+	} #footer strong { color: #444; font-weight: normal; }
 	
 	#header ul li a, #footer ul li a {
 		display: inline-block;
@@ -103,13 +109,20 @@ a:hover { text-decoration: underline; }
 		border-top: 1px #fff solid;
 	}
 	
-	#header ul li a:hover, #footer ul li a:hover
-	{
+	#header ul li a:hover, #footer ul li a:hover {
 		border-top: 1px #eee solid;
 		border-radius: 99px;
 		-webkit-border-radius: 99px;
         -moz-border-radius: 99px;
 		background: #f5f5f5;
+	}
+	
+	#header ul li a:active, #footer ul li a:active {
+	    box-shadow: inset 0 2px 5px #ccc;
+		border-radius: 99px;
+		-webkit-border-radius: 99px;
+        -moz-border-radius: 99px;
+		background: #eee;
 	}
 		
 #main-wrapper {
@@ -119,26 +132,29 @@ a:hover { text-decoration: underline; }
 #main {
 	padding: 30px 0 30px;
 	clear: both;
-	width: 60%;
-	min-width: 800px;
-	max-width: 960px;
+	width: 960px;
 	margin: 0 auto;
 	overflow: hidden;
 }
 
 #intro {
-	float: left;
-	margin-right: 462px;
 }
 	
 #intro ol {
-	width: 90%;
-	padding: 10px 0 0 5px;
 	list-style-type: none;
+	overflow: hidden;
 }
 		
-#intro ol li h3 { margin-bottom: 5px; color: #000; font-size: 22px; }
-#intro ol li p { margin-left: 49px; margin-bottom: 15px; }
+#intro ol li {
+    float: left;
+    width: 30%;
+    margin-right: 5%;
+}
+
+#intro ol li:last-child { float: right; margin-right: 0; }
+		
+#intro ol li h3 { margin-bottom: 20px; color: #000; font-size: 22px; padding-top: 6px; }
+#intro ol li p { margin-left: 0; }
 		
 #intro ol li .list-number {
 	background: #CC333F;
@@ -168,7 +184,9 @@ a:hover { text-decoration: underline; }
 #intro ol li:hover p { }
 
 #watch-video {
-    margin: 25px 0 0 5px;
+    clear: both;
+    text-align: center;
+    margin: 30px auto;
     font-size: 18px;
 }
 
@@ -178,52 +196,47 @@ a:hover { text-decoration: underline; }
 }
 
 #main-page-form {
-	float: right;
-	width: 458px;
-	margin-left: -462px;
+    clear: both;
+    margin: 0 auto;
 	border-radius: 15px;
 	-webkit-border-radius: 15px;
     -moz-border-radius: 15px;
-	margin-top: 10px;
 	background: #f9f9f9;
-	border: 2px dashed #eee;
+	border: 2px solid #eee;
 }
 
-.login-form {
-    float: none !important;
-    margin: 0 auto !important;
-}
+.login-form { width: 462px !important; }
 
 	#main-page-form h2 {
-		text-align: center;
 		color: #333;
 		font-size: 22px;
-		margin: 20px 20px 15px;
+		margin: 20px;
 	}
+	
+	#index form input { width: 316px; float: left; }
+    #index label { text-align: left; float: left; width: auto; }
 	
 	.error { color: #CC333F !important; }
 
-	form {
-		margin: 0;
-	}
+	.login-form form { margin: 0 auto; width: 462px; }
 
-	label {
-		font-weight: bold;
-		color: #777;
-		text-align: right;
-		float: left;
-		width: 118px;
-		padding-top: 10px;
-	}
+	label { color: #777; width: 118px; padding-top: 10px; float: left; display: block; }
 
 	form input {
-		width: 270px;
-		float: right;
-	}
+	    float: right;
+	    margin: 0 20px;
+	    padding: 10px;
+	    width: 250px;
+		background: #fff;
+		box-shadow: inset 0 2px 4px #eee;
+		border: 1px solid #ddd;
+    	border-radius: 5px;
+    	-webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+		box-shadow: inset 0 2px 4px #eee, 0 2px 2px #fff;
+	} form input:last-child { margin-right: 0; }
 	
-	form input:focus {
-		outline:none;
-	}
+	form input:focus, textarea:focus { border-color: #ccc; }
 
 	form p {
 		overflow: hidden;
@@ -282,13 +295,12 @@ a:hover { text-decoration: underline; }
 	text-align: right;
 	padding: 15px 0 40px;
 	clear: both;
-	width: 60%;
-	min-width: 800px;
-	max-width: 960px;
+	width: 960px;
 	margin: 0 auto;
+	font-size: 18px;
 }
 	
-	#footer p { margin-top: 10px; }
+	#footer p { margin-top: 28px; }
 	#footer #info a { color: #555; }
 	
 /* FORM STYLING */
@@ -319,7 +331,7 @@ input[type=file] {
 	-webkit-border-radius: 15px;
     -moz-border-radius: 15px;
 	background: #f9f9f9;
-	border: 2px dashed #eee;
+	border: 2px solid #eee;
 	padding-bottom: 15px;
 }
 
@@ -382,9 +394,10 @@ input[type=file] {
 }
 
 #home #dashboard {
+	border: 2px solid #eee;
     float: right;
     margin-left: 254px;
-    width: 680px;
+    width: 676px;
     padding: 20px 0 10px;
 	border-radius: 15px;
 	-webkit-border-radius: 15px;
@@ -415,13 +428,14 @@ input[type=file] {
 /* Create link */
 
 #link-form {
-    width: 680px;
+    width: 676px;
     padding: 20px 0 0;
     margin-left: 20px;
 	border-radius: 15px;
 	-webkit-border-radius: 15px;
     -moz-border-radius: 15px;
 	background: #f9f9f9;
+	border: 2px solid #eee;
 }
 
     #delete_link {
@@ -431,13 +445,7 @@ input[type=file] {
     }
 
     .faint { color: #ccc; font-weight: normal; }
-
-    #link-form p {
-        padding: 0 10px;
-    }
     
-    #link-form p.last-p { padding: 0; }
-
     #link-form h2, #link-form h3 {
     	text-align: left;
     	color: #333;
@@ -485,7 +493,12 @@ input[type=file] {
         border-right: solid 1px #bbb;
         border-top: solid 1px #ccc;
         
-        -webkit-box-shadow: #D7D7D7 0px 1px;
+        background: #fff;
+		box-shadow: inset 0 2px 4px #eee, 0 2px 2px #fff;
+		border: 1px solid #ddd;
+    	border-radius: 5px;
+    	-webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
     }
     
     .or {
@@ -612,9 +625,6 @@ input[type=file] {
 
 #visiting-link #header h1, #visiting-link #header h2 {
     float: none;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
 }
 
 #visiting-link #header ul {
@@ -628,7 +638,7 @@ input[type=file] {
 #description-box {
     background: #f5f5f5;
     background: rgba(0, 0, 0, .05);
-    border: 2px dashed rgba(0, 0, 0, .05);
+    border: 2px solid rgba(0, 0, 0, .05);
     border-radius: 15px; -moz-border-radius: 15px; -webkit-border-radius: 15px;
 	-webkit-box-shadow: 0 0 3px rgba(0, 0, 0, .05);
 	-moz-box-shadow: 0 0 3px rgba(0, 0, 0, .05);
@@ -644,7 +654,7 @@ input[type=file] {
 #payment-box {
     background: #333;
     background: rgba(0, 0, 0, .75);
-    border: 2px dashed rgba(0, 0, 0, .2);
+    border: 2px solid rgba(0, 0, 0, .2);
     border-radius: 15px; -moz-border-radius: 15px; -webkit-border-radius: 15px;
 	-webkit-box-shadow: 0 0 3px rgba(0, 0, 0, .5);
 	-moz-box-shadow: 0 0 3px rgba(0, 0, 0, .5);
@@ -663,7 +673,7 @@ input[type=file] {
 #payment-box p {
     margin-left: 20px;
     margin-right: 20px;
-}
+} #payment-box input { width: 286px; margin: 0 !important; }
 
 #payment-box .last-p {
     margin-left: 0;
@@ -687,6 +697,7 @@ input[type=file] {
 
 #payment-box label {
     width: 160px;
+    text-align: right;
     color: #ddd;
 }
 
@@ -771,9 +782,9 @@ input[type=file] {
 /* 404 */
 
 #four-oh-four {
+    min-width: 800px;
     text-align: center;
-    width: 600px;
-    margin: 0 auto;
+    margin: 80px auto 30px;
 }
 
 #four-oh-four h1 {
@@ -784,78 +795,78 @@ input[type=file] {
 /* IPHONE STYLING */
 
 @media screen and (max-device-width: 480px) {
+
+
 * { margin: 0; border: 0; padding: 0; }
 
 body {
     -webkit-text-size-adjust: none;
 }
 
-#wrapper {
-	width: 320px;
-}
-
 #header, #footer {
-	width: 300px;
-	min-width: 300px;
-	max-width: 300px;
-}
-
+    width: auto;
+    padding: 10px;
+} #header { padding-top: 0; }
 
 #header h1 { margin-left: 10px; margin-top: 0; }
 #header h2 { margin-left: 10px; width: 300px; }
+#header ul { float: left !important; margin: 0 !important; }
+#header ul li { margin: 0 10px 0 0 !important; }
+
+.new h1 {
+    background: url(/static/images/gumroad-mobile.png);
+	text-indent: -9999px;
+	width: 300px; height: 69px;
+	margin: 19px auto 25px !important;
+} .new .slogan { top: 78px; left: 121px; position: absolute; }
 
 #main {
-	padding: 10px 10px;
-	width: 300px;
-	min-width: 300px;
-	max-width: 300px;
+	padding: 10px;
+	width: auto;
 }
 
 #intro {
-	width: 300px;
+	width: auto;
 	float: none;
 	clear: both;
 }
+
+    #intro li { clear: both; float: left !important; margin: 10px 0 0; width: 100% !important; }
 
 #main-page-form {
     clear: both;
 	float: none;
 	margin: 10px 0;
-	width: 300px;
-	border-radius: 15px;
-	-webkit-border-radius: 15px;
-    -moz-border-radius: 15px;
+	border-radius: 10px;
+	-webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
 	margin-top: 10px;
 	background: #f9f9f9;
-	border: 2px dashed #eee;
+	border: 2px solid #eee;
 }
 
 #main-page-form h2 {
 	text-align: left;
 	font-size: 22px;
-	margin: 20px 20px 0px;
+	margin: 10px 10px 0px;
 }
 
-form label {
-    text-align: left;
-    margin-bottom: 5px;
+form p {
+    margin: 10px;
 }
 
-form input {
-	width: 242px;
-	float: none;
-	clear: both;
-	border: 1px solid #ddd;
-}
+#index form input { clear: both; display: block; margin: 10px 0; width: 250px; }
+#index form label { clear: both; display: block; width: 100%; }
+#index form p { margin-bottom: 0; }
 
 #footer ul {
-    width: 300px;
+    width: auto;
     clear: both;
     float: none;
 }
 
 #footer #info {
-    width: 300px;
+    width: auto;
     margin-left: 10px;
     text-align: left;
     clear: both;
@@ -864,7 +875,7 @@ form input {
 
 #header ul {
     clear: both;
-	float: none;
+	float: right;
 	margin: 10px 0 0;
 }
 
@@ -875,6 +886,8 @@ form input {
 #footer ul {
     margin-top: 0px;
 }
+
+#static-content #main p { width: 100%; }
 
 #forgot-password, .hidden { display: none !important; }
 

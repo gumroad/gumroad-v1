@@ -6,9 +6,9 @@
 		<div id="main-body">
 			<div id="link-form">
 			{% if show_error %}
-			<h2 class="cabin error">{{ error_message }}</h2>
+			<h2 class="error">{{ error_message }}</h2>
 			{% else %}
-			<h2 class="cabin">Your account details:</h2>
+			<h2>Your account details:</h2>
 			{% endif %}
 			<form action="/account" method="post">
 				<p>

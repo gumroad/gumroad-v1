@@ -3,42 +3,7 @@
 	"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-<title>{% if title %}{{ title }}{% else %}Gumroad - share and sell your digital goods.{% endif %}</title>
-
-<link href='https://fonts.googleapis.com/css?family=Cabin:regular,bold' rel='stylesheet' type='text/css'>
-<link type="text/css" rel="stylesheet" href="/static/css/reset.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/main.css" />
-
-<meta property="og:site_name" content="Gumroad" />
-<meta property="og:title" content="Gumroad" />
-<meta property="og:url" content="http://gumroad.com/" />
-<meta property="og:type" content="website" />
-<meta property="og:description" content="Share and sell your digital goods with just a link." />
-<!--<meta property="og:image" content="http://lts.cr.s3.amazonaws.com/media/img/crate_75-final.png" />-->
-<meta property="fb:page_id" content="http://www.facebook.com/pages/Gumroad/207002865984963" />
-
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
-<script type='text/javascript' src='/static/js/jquery.tipsy.js'></script>
-<link rel="stylesheet" href="/static/css/tipsy.css" type="text/css" />
-
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-3109196-41']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-</script>
-
-<meta name = "viewport" content = "initial-scale = 1.0, user-scalable = no">
-
-</head>
+{% include "includes/head.html" %}
 <body{% if body_id %} id="{{ body_id }}"{% endif %}>
 	
 <div id="wrapper">
@@ -65,11 +30,10 @@
 			{% endif %}
 		</ul>
 		<a href="/" id="logo"><h1>Gumroad</h1></a>
-		<h2 class="cabin">{% if user_name %}{{user_name}} is sharing {{ name }} with you! {% else %} You're being shared {{ name }}! {% endif %}</h2>
+		<h2>{% if user_name %}{{user_name}} is sharing {{ name }} with you! {% else %} You're being shared {{ name }}! {% endif %}</h2>
 	</div>
 	
 	<script type="text/javascript">
-
 		$(document).ready(function(){
 
 			var progress = 0;
@@ -179,7 +143,7 @@
 	{% endif %}
 	
 	<div id="payment-box">
-		<h2 class="cabin">Pay ${{ price }} to be redirected to it:</h2>
+		<h2>Pay ${{ price }} to buy it:</h2>
 		<form id="payment-form" name="payment-form" action="" method="post">
 			
 			<p>
@@ -240,7 +204,7 @@
 
 	<div id="footer-wrapper">
 	<div id="footer">
-		<p>Copyright &copy; 2011 <a href="http://little.bigthin.gs/">Little Big Things, LLC</a>.</p>
+		{% include "includes/copyright-p.html" %}
 	</div>
 	</div>
 

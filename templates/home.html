@@ -5,9 +5,9 @@
 		{% include "includes/navigation.html" %}
 		<div id="dashboard">
 			{% if show_error %}
-			<h2 class="cabin error">{{ error_message }}</h2>
+			<h2 class="error">{{ error_message }}</h2>
 			{% else %}
-			<h2 class="cabin">Last {{number_of_days}} day{{s}}:</h2>
+			<h2>Last {{number_of_days}} day{{s}}:</h2>
 			{% endif %}
 			
 			<div class="chart">
@@ -18,14 +18,8 @@
 			{% endif %}
 			</div>
 			
-			<!--<ul>			    
-				{% for link in links %}
-				<li><a href="/{{ link.unique_permalink }}">{{ link.name }}</a> - {{ link.number_of_downloads }} downloads - ${{ link.balance }} - {{ link.number_of_paid_downloads }} paid downloads - {{ link.number_of_views }} views - created on {{ link.create_date }} - price: {{link.price}} - url: {{link.url}} - description: {{link.description}}</li>			
-				{% endfor %}
-			</ul>-->
-			
 			<div id="history">
-				<h3 class="cabin">History:</h3>
+				<h3>History:</h3>
 				<p><strong>${{ last_seven_days_purchase_total }}</strong> in the past 7 days.</p>
 				<p><strong>${{ last_month_purchase_total }}</strong> in the past month.</p>
 				<p><strong>${{ purchase_total }}</strong> in total.</p>

@@ -73,11 +73,11 @@ class User(db.Model):
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
-
         if is_logged_in():
-            self.redirect("/home")
+            return self.redirect("/home")
 
         template_values = {
+            'body_id': 'index',
 	        'show_login_link': True,
 		}
 
@@ -121,11 +121,22 @@ class MainHandler(webapp.RequestHandler):
 
                 success = True
             else:
-    	        error_message = 'That email is already taken, sorry!'
-    	        success = False
+                user_from_db = users_from_db.get()
+
+                if sha256(password).hexdigest() == user_from_db.password:
+                    try:
+                        s = sessions.Session()
+                        s["user"] = email
+                    except:
+                        pass
+
+                    success = True
+                else:
+        	        error_message = 'That email is already taken, sorry!'
+        	        success = False
 
         if success:
-            self.redirect("/home")
+            return self.redirect("/home")
     	else:
             template_values = {
 		        'show_login_link': True,
@@ -986,6 +997,11 @@ class AccountHandler(webapp.RequestHandler):
                 success = False
             else:
                 user.email = email
+                                                                
+                for link in links:                    
+                    link.owner = user.email
+                    link.put()
+                
                 user.name = name
                 user.payment_address = payment_address
                 

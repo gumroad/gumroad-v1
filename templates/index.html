@@ -23,27 +23,23 @@
 	
 		<div id="intro">
             <ol>                    
-                <li><div id="stepone" class="list-number">1</div><h3 class="cabin">Take a file or a link of value.</h3><p>This can be anything. From a link to an exclusive build of an app, to a secret blog post, to an icon you spent hours designing.</p></li> 
-                <li><div id="steptwo" class="list-number">2</div><h3 class="cabin">Share it.</h3><p>Just like any old link. Choose your own price. You don't have to create a store. And you don't have to do <em>any</em> management. <a href="http://gumroad.com/l/hjbaod">Click here</a> for an example.</p></li> 
-                <li><div id="stepthree" class="list-number">3</div><h3 class="cabin">Make money.</h3><p>And that's it. At the end of each month we'll deposit the money you've earned to your account.</p></li> 
+                <li><div id="stepone" class="list-number">1</div><h3>Create something.</h3><p>This can be anything. Music, video, audio, a blog post, a quote, anything digital. Really, anything.</p></li> 
+                <li><div id="steptwo" class="list-number">2</div><h3>Share it.</h3><p>Just like any other link. Choose your own price. No store, no management. Just <a href="http://gumroad.com/l/hjbaod">a link</a>, for example.</p></li> 
+                <li><div id="stepthree" class="list-number">3</div><h3>Make money.</h3><p>That's it! Just keep creating awesome content and we'll keep making it really easy to sell. Deal?</p></li> 
             </ol>
-			<p id="watch-video">Still don't get it? <a href="http://www.youtube.com/embed/CJqWkcncOuY" class="iframe" id="watch-video-link">Watch a video</a>.</p>
+			<p id="watch-video">Don't get it? <a href="http://www.youtube.com/embed/CJqWkcncOuY" class="iframe" id="watch-video-link">Watch a video</a>.</p>
 		</div>
 		<div id="main-page-form">
 			{% if show_error %}
-			<h2 class="cabin error">{{ error_message }}</h2>
+			<h2 class="error">{{ error_message }}</h2>
 			{% else %}
-			<h2 class="cabin">Create an account in seconds:</h2>
+			<h2>Start selling in seconds:</h2>
 			{% endif %}
 			<form action="/" method="post">
-				<p>
-					<label for="email">Email address:</label>
-					<input name="email" type="text" placeholder="email address" {% if email_address %}value="{{email_address}}"{% endif %} />
-				</p>
-				<p>
-					<label for="password">Password:</label>
-					<input name="password" type="password" placeholder="password" />
-				</p>
+				<p><label for="email">Email address:</label>
+				<input name="email" type="text" placeholder="email address" {% if email_address %}value="{{email_address}}"{% endif %} />
+				<label for="password">Password:</label>
+				<input name="password" type="password" placeholder="password" /></p>
 				<p class="last-p"><button type="submit">Start Making Money</button></p>
 			</form>
 		</div>

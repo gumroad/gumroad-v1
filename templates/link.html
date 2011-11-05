@@ -109,13 +109,13 @@
 			
 			<div id="link-form">
 			{% if show_error %}
-				<h2 class="cabin error">{{ error_message }}</h2>
+				<h2 class="error">{{ error_message }}</h2>
 			{% else %}
 				{% if editing %}
 				<a href="#" id="delete_link">delete</a>
-				<h2 class="cabin">Edit link:</h2>
+				<h2>Edit link:</h2>
 				{% else %}			
-				<h2 class="cabin">Create a new link:</h2>
+				<h2>Create a new link:</h2>
 				{% endif %}
 			{% endif %}
 			<form action="/{% if editing %}edit/{{ permalink }}{% else %}add{% endif %}" method="post">
@@ -148,7 +148,7 @@
 				
 				{% if editing %}
 				<div id="link-options">
-					<h3 class="cabin">Additional link options:</h3>
+					<h3>Additional link options:</h3>
 					<p>
 						<label for="download_limit">Download limit:</label>
 						<input id="download_limit" name="download_limit" type="text" placeholder="0" {% if download_limit %}value="{{ download_limit }}"{% endif %} title="The number of people that can purchase this item. 0 means <em>no limit</em>!"/>
