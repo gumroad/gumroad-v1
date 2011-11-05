@@ -1,39 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-	"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+{% include "includes/header.html" %}
 
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-{% include "includes/head.html" %}
-<body{% if body_id %} id="{{ body_id }}"{% endif %} class="fourohfour">
-	
-<div id="wrapper">
-	<div id="header-bar">
-		<div id="one"></div>
-		<div id="two"></div>
-		<div id="three"></div>
-		<div id="four"></div>
-		<div id="five"></div>
-	</div>
-	<div id="progress"></div>
-	
-	<div id="four-oh-four"> 		
-		<h1>404</h1>
-	</div>
-	
-	<div id="header-wrapper">	
-	<div id="header">
-		<h2>You've reached a page that doesn't exist. <a href="/">Go home?</a></h2>
-	</div>
-		
-</div>
+	<div id="main-content">
+		<h3>404</h3>
 
-	<div id="footer-wrapper" class="hidden">
-	<div id="footer">
-		{% include "includes/copyright-p.html" %}
-	</div>
+		<div class="mini-rule"></div>
+				
+		<p>You've reached a page that doesn't exist. <a href="/home">Go home?</a></p>
 	</div>
 
-</div>
-
-</body>
-</html>
+{% include "includes/footer.html" %}

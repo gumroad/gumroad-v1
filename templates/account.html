@@ -1,37 +1,27 @@
 {% include "includes/header.html" %}
 
-<div id="main-wrapper">
-	<div id="main">
-		{% include "includes/navigation.html" %}
-		<div id="main-body">
-			<div id="link-form">
-			{% if show_error %}
-			<h2 class="error">{{ error_message }}</h2>
-			{% else %}
-			<h2>Your account details:</h2>
-			{% endif %}
-			<form action="/account" method="post">
-				<p>
-					<label for="name">Name:</label>
-					<input id="name" name="name" type="text" placeholder="full name" {% if name %}value="{{ name }}"{% endif %} />
-				</p>
-				<p>
-					<label for="email">Email Address:</label>
-					<input id="email" name="email" type="text" placeholder="email address" {% if email %}value="{{ email }}"{% endif %} />
-				</p>
-				<p>
-					<label for="payment_address">PayPal Email:</label>
-					<input id="payment_address" name="payment_address" type="text" placeholder="paypal address" {% if payment_address %}value="{{ payment_address }}"{% endif %} />
-				</p>
-				
-				<!-- TODO: edit password -->			    
-				
-				<p class="last-p"><button type="submit">Update Account Details</button></p>
-			</form>
-			</div>
-		</div>
-	</div>
-</div>
+	<form id="large-form" action="/account" method="post">
+		{% if show_error %}
+		<h3>Your account settings <small class="error">{{ error_message }}</small></h3>
+		{% else %}
+		<h3>Your account settings <small>a setting you can't change: how awesome you are</small></h3>
+		{% endif %}
+		<p>
+			<label for="name">Full name: </label>
+			<input id="name" name="name" type="text" placeholder="Full Name" {% if name %}value="{{ name }}"{% endif %} />
+		</p><p>
+			<label for="email">Email address: </label>
+			<input type="text" placeholder="Email Address" name="email" {% if email_address %}value="{{email_address}}"{% endif %} />
+		</p><p>
+			<label for="payment_address">PayPal address: </label>
+			<input id="payment_address" name="payment_address" type="text" placeholder="PayPal Address" {% if payment_address %}value="{{ payment_address }}"{% endif %} />
+		</p><p>
+			<button type="submit">Update account details</button>
+		</p>
+		<div class="rainbow bar"></div>
+	</form>
+
+	<p id="below-form-p">&nbsp;</p>
 
 {% include "includes/footer.html" %}
 

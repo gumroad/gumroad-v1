@@ -202,7 +202,7 @@ class LoginHandler(webapp.RequestHandler):
         template_values = {
 		    'show_login_link': False,
 	        'body_id': 'login',
-	        'title': 'Gumroad / Login'
+	        'title': 'Log in to Gumroad'
 		}
 
         path = os.path.join(os.path.dirname(__file__), 'templates/login.html')
@@ -257,7 +257,7 @@ class ForgotPasswordHandler(webapp.RequestHandler):
         template_values = {
 		    'show_login_link': False,
 	        'body_id': 'login',
-	        'title': 'Gumroad / Forgotten Password'
+	        'title': 'Gumroad - Forgotten Password'
 		}
 
         path = os.path.join(os.path.dirname(__file__), 'templates/forgot-password.html')
@@ -348,7 +348,7 @@ class ResetPasswordHandler(webapp.RequestHandler):
 	        'body_id': 'login',
 	        'email_address': email,
 	        'reset_hash': reset_hash,
-	        'title': 'Gumroad / Reset Password'
+	        'title': 'Gumroad - Reset Password'
 		}
 
         path = os.path.join(os.path.dirname(__file__), 'templates/reset-password.html')
@@ -382,7 +382,7 @@ class ResetPasswordHandler(webapp.RequestHandler):
     	else:
             template_values = {
 		        'show_login_link': False,
-		        'title': 'Gumroad / Reset Password',
+		        'title': 'Gumroad - Reset Password',
     	        'show_error': True,
 		        'email_address': email,
     	        'reset_hash': reset_hash,
@@ -391,6 +391,48 @@ class ResetPasswordHandler(webapp.RequestHandler):
 		        }
 
             path = os.path.join(os.path.dirname(__file__), 'templates/reset-password.html')
+            self.response.out.write(template.render(path, template_values))
+
+class LinksHandler(webapp.RequestHandler):
+    def get(self):
+        email = get_user()
+        links = []
+
+        if not email:
+            return self.redirect("/")
+        else:
+            user = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = email).get()
+            if not user:
+                return self.redirect("/")
+            links = db.GqlQuery("SELECT * FROM Link WHERE owner = :email", email = email).fetch(999)
+
+            s = plural(len(links))
+
+            if len(links) == 0:
+                links_message = 'create one, you know you want to'
+            else:
+                if len(links) < 3:
+                    links_message = 'not too bad...'
+                else:
+                    links_message = 'that\'s a lot!'
+
+            for link in links:
+                link.formatted_price = formatted_price(link.price)
+
+            template_values = {
+	            'show_login_link': False,
+    	        'logged_in': True,
+    	        'body_id': 'app',
+    	        'user_email': email,
+    	        'number_of_links': len(links),
+    	        'links': links,
+    	        'links_message': links_message,
+    	        's': s,
+    	        'title': 'Gumroad',
+    	        'user_balance': formatted_price(user.balance)
+    		}
+
+            path = os.path.join(os.path.dirname(__file__), 'templates/links.html')
             self.response.out.write(template.render(path, template_values))
 
 class HomeHandler(webapp.RequestHandler):
@@ -459,7 +501,7 @@ class HomeHandler(webapp.RequestHandler):
 	            'show_login_link': False,
 	            'show_chart': show_chart,
     	        'logged_in': True,
-    	        'body_id': 'home',
+    	        'body_id': 'app',
     	        'user_email': email,
     	        'number_of_links': len(links),
     	        'links': links,
@@ -471,7 +513,7 @@ class HomeHandler(webapp.RequestHandler):
     	        'last_seven_days_purchase_total': formatted_price(last_seven_days_purchase_total),
     	        'last_month_purchase_total': formatted_price(last_month_purchase_total),
     	        'purchase_total': formatted_price(purchase_total),
-    	        'title': 'Gumroad / Home',
+    	        'title': 'Gumroad',
     	        'user_balance': formatted_price(user.balance)
     		}
 
@@ -532,11 +574,11 @@ class EditLinkHandler(webapp.RequestHandler):
         	        'editing': True,
         	        'permalink': permalink,
         	        'logged_in': True,
-        	        'body_id': 'home',
+        	        'body_id': 'app',
         	        'user_email': email,
         	        'number_of_links': len(links),
         	        'links': links,
-        	        'title': 'Gumroad / ' + link.name,
+        	        'title': 'Gumroad - ' + link.name,
         	        'user_balance': formatted_price(user.balance)
         		}
 
@@ -612,11 +654,11 @@ class EditLinkHandler(webapp.RequestHandler):
     	        'editing': True,
     	        'permalink': permalink,
     	        'logged_in': True,
-    	        'body_id': 'home',
+    	        'body_id': 'app',
     	        'user_email': email,
     	        'number_of_links': len(links),
     	        'links': links,
-    	        'title': 'Gumroad / Edit Link',
+    	        'title': 'Gumroad - Edit Link',
     	        'user_balance': formatted_price(user.balance),
     	        'show_error': True,
     	        'error_message': error_message
@@ -659,11 +701,11 @@ class AddLinkHandler(webapp.RequestHandler):
             template_values = {
     	        'show_login_link': False,
     	        'logged_in': True,
-    	        'body_id': 'home',
+    	        'body_id': 'app',
     	        'user_email': email,
     	        'number_of_links': len(links),
     	        'links': links,
-    	        'title': 'Gumroad / Add Link',
+    	        'title': 'Gumroad - Create Link',
     	        'user_balance': formatted_price(user.balance)
     		}
 
@@ -729,11 +771,11 @@ class AddLinkHandler(webapp.RequestHandler):
     		        'description': description,
         	        'show_login_link': False,
         	        'logged_in': True,
-        	        'body_id': 'home',
+        	        'body_id': 'app',
         	        'user_email': email,
         	        'number_of_links': len(links),
         	        'links': links,
-        	        'title': 'Gumroad / Add Link',
+        	        'title': 'Gumroad - Create Link',
         	        'user_balance': formatted_price(user.balance),
     		        'show_error': True,
     		        'error_message': error_message
@@ -884,9 +926,9 @@ class ApiPurchaseLinkHandler(webapp.RequestHandler):
                     #Stripe payments!
                     identifier = link.unique_permalink + ' ' + str(link.number_of_views)
                     if cgi.escape(self.request.get('testing')):
-                        client = stripe.Client('QK2oOnsS6r7os8hJGeQMMiNHElZDpCwr')
+                        client = stripe.Client('pe43CRDgovrviePbNzHvisgDYtMF62Ev')
                     else:
-                        client = stripe.Client('T10Jab3Cir6v3SJFMooSKTdGNUERR4jh')
+                        client = stripe.Client('bXOUJVSN09rarpaBgyWeQowXzzdIZMJ9')
                         
                     cents = int(link.price*100)    
                     
@@ -905,7 +947,7 @@ class ApiPurchaseLinkHandler(webapp.RequestHandler):
                             new_purchase = Purchase(owner=link.owner, price=float(link.price), unique_permalink=link.unique_permalink)
                             new_purchase.put()
 
-                            message = mail.EmailMessage(sender="Sahil @ Gumroad <sahil@slavingia.com>",
+                            message = mail.EmailMessage(sender="Gumroad <hi@gumroad.com>",
                                                         subject="You just sold a link!")
                             message.to = user.email
 
@@ -926,10 +968,15 @@ class ApiPurchaseLinkHandler(webapp.RequestHandler):
                             except:
                                 pass
 
+                            redirect_url = link.url
+
+                            if cgi.escape(self.request.get('testing')):
+                                redirect_url = 'http://google.com'
+
                             self.response.headers['Content-Type'] = 'application/json'
                             self.response.out.write(json.dumps({
                                 'success': True,
-                                'redirect_url': link.url
+                                'redirect_url': redirect_url
                             }))
                         else:
                             self.response.headers['Content-Type'] = 'application/json'
@@ -959,14 +1006,14 @@ class AccountHandler(webapp.RequestHandler):
             template_values = {
                 'name': user.name,
                 'payment_address': user.payment_address,
+                'email_address': user.email,
     	        'show_login_link': False,
     	        'logged_in': True,
-    	        'body_id': 'home',
-    	        'user_email': email,
+    	        'body_id': 'app',
     	        'email': email,
     	        'number_of_links': len(links),
     	        'links': links,
-    	        'title': 'Gumroad / Edit Link',
+    	        'title': 'Gumroad - Account Settings',
     	        'user_balance': formatted_price(user.balance)
     		}
 
@@ -1018,18 +1065,16 @@ class AccountHandler(webapp.RequestHandler):
                 self.redirect("/account")
             else:
                 template_values = {
-        	        'name': name,
-        	        'url': url,
-        	        'description': description,
+                    'name': user.name,
+                    'payment_address': user.payment_address,
         	        'show_login_link': False,
-        	        'editing': True,
-        	        'permalink': permalink,
         	        'logged_in': True,
-        	        'body_id': 'home',
-        	        'user_email': email,
+        	        'body_id': 'app',
+                    'email_address': user.email,
+        	        'email': email,
         	        'number_of_links': len(links),
         	        'links': links,
-        	        'title': 'Gumroad / Edit Link',
+        	        'title': 'Gumroad - Account Settings',
         	        'user_balance': formatted_price(user.balance),
         	        'show_error': True,
         	        'error_message': error_message
@@ -1093,7 +1138,7 @@ class ConfirmPaypalHandler(webapp.RequestHandler):
                 new_purchase = Purchase(owner=link.owner, price=float(link.price), unique_permalink=link.unique_permalink)
                 new_purchase.put()
 
-                message = mail.EmailMessage(sender="Sahil @ Gumroad <sahil@slavingia.com>",
+                message = mail.EmailMessage(sender="Gumroad <hi@gumroad.com>",
                                             subject="You just sold a link!")
                 message.to = user.email
 
@@ -1227,13 +1272,15 @@ class LinkHandler(webapp.RequestHandler):
 
             template_values = {
                 'name': link.name,
+                'hide_header': True,
+                'hide_footer': True,
                 'permalink': permalink,
                 'description': description,
                 'show_description': show_description,
                 'user_name': user.name,
                 'user_email': user.email,
-    	        'body_id': 'visiting-link',
-    	        'title': 'Gumroad / ' + link.name,
+    	        'body_id': 'link',
+    	        'title': 'Gumroad - ' + link.name,
     	        'user_balance': formatted_price(user.balance),
     	        'price': formatted_price(link.price)
     		}
@@ -1266,7 +1313,6 @@ class LinkHandler(webapp.RequestHandler):
             error_message = ''
 
             request = self.request
-            logging.debug('Start guestbook signing request')
             card_number = cgi.escape(self.request.get('card_number'))
             expiry_month = cgi.escape(self.request.get('date_month'))
             expiry_year = cgi.escape(self.request.get('date_year'))
@@ -1280,14 +1326,14 @@ class LinkHandler(webapp.RequestHandler):
 
             if not card_number or not cvv:
                 self.response.headers['Content-Type'] = 'application/json'
-                self.response.out.write(json.dumps({
+                return self.response.out.write(json.dumps({
                     'error_message': 'Fill in the whole form please!',
                     'show_error': True
                 }))
             else:       
                 if link.number_of_downloads >= link.download_limit and link.download_limit > 0:
                     self.response.headers['Content-Type'] = 'application/json'
-                    self.response.out.write(json.dumps({
+                    return self.response.out.write(json.dumps({
                         'error_message': 'This link has hit its download limit. Sorry!',
                         'show_error': True
                     }))   
@@ -1295,9 +1341,9 @@ class LinkHandler(webapp.RequestHandler):
                     #Stripe payments!
                     identifier = link.unique_permalink + ' ' + str(link.number_of_views)
                     if cgi.escape(self.request.get('testing')):
-                        client = stripe.Client('QK2oOnsS6r7os8hJGeQMMiNHElZDpCwr')
+                        client = stripe.Client('pe43CRDgovrviePbNzHvisgDYtMF62Ev')
                     else:
-                        client = stripe.Client('T10Jab3Cir6v3SJFMooSKTdGNUERR4jh')
+                        client = stripe.Client('bXOUJVSN09rarpaBgyWeQowXzzdIZMJ9')
                         
                     cents = int(link.price*100)    
                     
@@ -1337,10 +1383,15 @@ class LinkHandler(webapp.RequestHandler):
                             except:
                                 pass
 
+                            redirect_url = link.url
+
+                            if cgi.escape(self.request.get('testing')):
+                                redirect_url = 'http://google.com'
+
                             self.response.headers['Content-Type'] = 'application/json'
                             self.response.out.write(json.dumps({
                                 'success': True,
-                                'redirect_url': link.url
+                                'redirect_url': redirect_url
                             }))
                         else:
                             self.response.headers['Content-Type'] = 'application/json'
@@ -1532,7 +1583,9 @@ class NotFoundPageHandler(webapp.RequestHandler):
         self.error(404)
         template_values = {
             'title': 'Gumroad - 404',
-            'body_id': 'visiting-link'
+            'body_id': 'fourohfour',
+            'hide_header': True,
+            'hide_footer': True
         }
         path = os.path.join(os.path.dirname(__file__), 'templates/404.html')
         self.response.out.write(template.render(path, template_values))
@@ -1541,46 +1594,29 @@ class NotFoundPageHandler(webapp.RequestHandler):
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
     application = webapp.WSGIApplication([('/', MainHandler),
- 	                                      ('/stats/', StatsHandler), ('/stats', StatsHandler),
-                                    	  ('/faq', FAQHandler), ('/faq/', FAQHandler),
-                                    	  ('/about', AboutHandler), ('/about/', AboutHandler),
-                                    	  ('/elsewhere', ElsewhereHandler), ('/elsewhere/', ElsewhereHandler),
-                                   	      ('/login/', LoginHandler),
+ 	                                      ('/stats', StatsHandler),
+                                    	  ('/faq', FAQHandler),
+                                    	  ('/about', AboutHandler),
+                                    	  ('/elsewhere', ElsewhereHandler),
                                     	  ('/login', LoginHandler),
-                                    	  ('/account/', AccountHandler),
-                                    	  ('/account', AccountHandler),
-                                    	  ('/logout/', LogoutHandler),
+                                    	  ('/settings', AccountHandler),
+                                    	  ('/links', LinksHandler),
                                     	  ('/logout', LogoutHandler),
-                                    	  ('/upload/', FileUploadHandler),
                                     	  ('/upload', FileUploadHandler),
                                     	  ('/delete/(\S+)$', DeleteHandler),
-                                    	  ('/delete/(\S+)/$', DeleteHandler),
-                                    	  ('/home/', HomeHandler),
                                     	  ('/home', HomeHandler),
                                     	  ('/reset-password/(\S+)$', ResetPasswordHandler),
-                                    	  ('/reset-password/(\S+)/$', ResetPasswordHandler),                                          
                                     	  ('/password-reset/(\S+)$', ResetPasswordHandler),
-                                    	  ('/password-reset/(\S+)/$', ResetPasswordHandler),                                          
-                                    	  ('/forgot-password/', ForgotPasswordHandler),
                                     	  ('/forgot-password', ForgotPasswordHandler),
-                                    	  ('/add/', AddLinkHandler),
-                                    	  ('/add', AddLinkHandler),
+                                    	  ('/create', AddLinkHandler),
                                     	  ('/l/(\S+)$', LinkHandler),
-                                    	  ('/l/(\S+)/$', LinkHandler),
                                     	  ('/paypal/(\S+)$', PaypalHandler),
-                                    	  ('/paypal/(\S+)/$', PaypalHandler),
                                     	  ('/confirm/(\S+)$', ConfirmPaypalHandler),
-                                    	  ('/confirm/(\S+)/$', ConfirmPaypalHandler),
                                     	  ('/api/create$', ApiCreateLinkHandler),
-                                    	  ('/api/create/$', ApiCreateLinkHandler),
                                     	  ('/api/link/stats/(\S+)/(\S+)/(\S+)$', ApiLinkStatsHandler),
-                                    	  ('/api/link/stats/(\S+)/(\S+)/(\S+)/$', ApiLinkStatsHandler),
                                     	  ('/api/user/stats/(\S+)/(\S+)$', ApiStatsHandler),
-                                    	  ('/api/user/stats/(\S+)/(\S+)/$', ApiStatsHandler),
                                     	  ('/api/purchase$', ApiPurchaseLinkHandler),
-                                    	  ('/api/purchase/$', ApiPurchaseLinkHandler),
                                     	  ('/edit/(\S+)$', EditLinkHandler),
-                                    	  ('/edit/(\S+)/$', EditLinkHandler),
                                     	  ('/.*', NotFoundPageHandler)],
                                          debug=True)
     util.run_wsgi_app(application)

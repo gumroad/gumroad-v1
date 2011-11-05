@@ -1,6 +1,6 @@
 {% include "includes/header.html" %}
 
-<script type="text/javascript">
+	<script type="text/javascript">
 
 	$(document).ready(function(){
 
@@ -33,7 +33,7 @@
 					$(".qq-upload-button").text("Uploading...");					
 				},
 				onCancel: function(id, fileName){
-					$(".qq-upload-button").text("Upload a file");
+					$(".qq-upload-button").text("or upload a file...");
 				},
 				onComplete: function(id, fileName, responseJSON) {	
 //					alert(responseJSON);
@@ -78,90 +78,87 @@
 
 </script>
 
-<div id="main-wrapper">
-	<div id="main">
-		{% include "includes/navigation.html" %}
-		<div id="main-body">
-			
-			{% if editing %}
-			<div id="share-box">
-			<a href="javascript:window.open(%22http://www.facebook.com/dialog/feed?app_id=114816261931958&redirect_uri=http://gumroad.com/home&display=popup&message=Buy%20{{ url_encoded_name }}%20on%20Gumroad%21&link={{link_to_share}}%22,%22Share%22,%22width=400,height=200,scrollbars=yes%22);" class="facebook button">Share on Facebook</a>
-			<p><strong>Link to share:</strong><br /><input type="text" value="{{link_to_share}}" class="share_link" readonly="readonly"></p>
-			<a href="javascript:popup(%22http://twitter.com/share?text=Buy%20{{ url_encoded_name }}%20on%20Gumroad%21&via=gumroad&url={{link_to_share}}%22)" class="twitter button">Share on Twitter</a>
-			</div>
-			
-			<div id="analytics-box">
-				<p><strong>{{views}}</strong> views <span class="arrow">&rarr;</span> <img src="https://chart.googleapis.com/chart?chf=bg,s,f9f9f9&cht=p&chd=t:{{conversion}},{{hundred_minus_conversion}}&chds=0,100&chs=100x100&chco=777777" height="20" width="20" /> <span>{{conversion}}%</span> <span class="arrow">&rarr;</span> <strong>{{number_of_downloads}}</strong> downloads at &#8776; <strong>{{price}}</strong> <span class="arrow">&rarr;</span> <strong>{{total_profit}}</strong> in profit!</p>
-			</div>
-			
-			{% endif %}
-			
-			<script type="text/javascript">
+	<script type="text/javascript">
 
-				$(document).ready(function(){
-
-				    $('#download_limit').tipsy({trigger: 'focus', gravity: 'w', html: 'true'});
-
-				});
-
-			</script>
-			
-			
-			<div id="link-form">
-			{% if show_error %}
-				<h2 class="error">{{ error_message }}</h2>
-			{% else %}
-				{% if editing %}
-				<a href="#" id="delete_link">delete</a>
-				<h2>Edit link:</h2>
-				{% else %}			
-				<h2>Create a new link:</h2>
-				{% endif %}
-			{% endif %}
-			<form action="/{% if editing %}edit/{{ permalink }}{% else %}add{% endif %}" method="post">
-				<p>
-					<label for="name">Name:</label>
-					<input id="name" name="name" type="text" placeholder="name" {% if name %}value="{{ name }}"{% endif %} />
-				</p>
-				<p>
-					<label for="price">Price:</label>
-					<input id="price" name="price" type="text" placeholder="$10" {% if price %}value="{{ price }}"{% endif %} />
-				</p>
-				<p>
-					<label for="url">URL:</label>
-					<input id="url" name="url" type="text" placeholder="http://" {% if url %}value="{{ url }}"{% endif %} />
-				</p>
-				<p>
-					<label for="file">or upload a file:</label>
-					<span id="file-uploader-wrapper">
-					<span id="file-uploader">		
-						<noscript>			
-							<p>Please enable JavaScript to use file uploader.</p>
-						</noscript>         
-					</span>
-					</span>
-				</p>
-				<p>
-					<label for="description">Description: <span class="faint">(optional)</span></label>
-					<textarea id="description" name="description">{% if description %}{{ description }}{% endif %}</textarea>
-				</p>
+		$(document).ready(function(){
+		    $('#download_limit').tipsy({trigger: 'focus', gravity: 'w', html: 'true'});
+		    $('#link_to_share').tipsy({trigger: 'hover', gravity: 'w', html: 'true'});
 				
-				{% if editing %}
-				<div id="link-options">
-					<h3>Additional link options:</h3>
-					<p>
-						<label for="download_limit">Download limit:</label>
-						<input id="download_limit" name="download_limit" type="text" placeholder="0" {% if download_limit %}value="{{ download_limit }}"{% endif %} title="The number of people that can purchase this item. 0 means <em>no limit</em>!"/>
-					</p>
-				</div>
-				{% endif %}
-				
-				<p class="last-p"><button type="submit">{% if editing %}Edit Link{% else %}Create Link!{% endif %}</button></p>
-			</form>
-			</div>
-		</div>
+			$('#link_to_share').click(function(){
+				this.select();
+			});		
+		});
+
+	</script>
+
+	{% if editing %}
+	<div id="share-box">
+	<a href="javascript:window.open(%22http://www.facebook.com/dialog/feed?app_id=114816261931958&redirect_uri=http://gumroad.com/home&display=popup&message=Buy%20{{ url_encoded_name }}%20on%20Gumroad%21&link={{link_to_share}}%22,%22Share%22,%22width=400,height=200,scrollbars=yes%22);" class="facebook button">Share on Facebook</a>
+	<p><input type="text" value="{{link_to_share}}" id="link_to_share" readonly="readonly" title="Share this link to sell!"></p>
+	<a href="javascript:popup(%22http://twitter.com/share?text=Buy%20{{ url_encoded_name }}%20on%20Gumroad%21&via=gumroad&url={{link_to_share}}%22)" class="twitter button">Share on Twitter</a>	
+	
+	<div id="analytics-box">
+		<p><strong>{{views}}</strong> views <span class="arrow">&rarr;</span> <img src="https://chart.googleapis.com/chart?chf=bg,s,00000000&cht=p&chd=t:{{conversion}},{{hundred_minus_conversion}}&chds=0,100&chs=100x100&chco=797874,79787420" height="20" width="20" /> <span>{{conversion}}%</span> <span class="arrow">&rarr;</span> <strong>{{number_of_downloads}}</strong> downloads at &#8776; <strong>{{price}}</strong> <span class="arrow">&rarr;</span> <strong>{{total_profit}}</strong> in profit!</p>
 	</div>
-</div>
+	
+	</div>
+	
+	{% endif %}
+	
+	<form id="large-form" action="/{% if editing %}edit/{{ permalink }}{% else %}add{% endif %}" method="post"{% if editing %} class="editing-link"{% endif %}>
+		{% if editing %}
+		<a href="#" id="delete_link">delete</a>
+		<h3>Edit link {% if show_error %}<small class="error">{{ error_message }}</small>{% endif %}</h3>
+		{% else %}			
+		<h3>Create a new link {% if show_error %}<small class="error">{{ error_message }}</small>{% endif %}</h3>
+		{% endif %}
+
+		<p>
+			<label for="name">Name:</label>
+			<input id="name" name="name" type="text" placeholder="name" {% if name %}value="{{ name }}"{% endif %} />
+		</p>
+		<p>
+			<label for="price">Price:</label>
+			<input id="price" name="price" type="text" placeholder="$10" {% if price %}value="{{ price }}"{% endif %} />
+		</p>
+		<p>
+			<label for="url">URL:</label>
+			<input id="url" name="url" type="text" placeholder="http://" {% if url %}value="{{ url }}"{% endif %} />
+		</p>
+		<p>
+			<label for="file"></label>
+			<span id="file-uploader-wrapper">
+			<span id="file-uploader">		
+				<noscript>			
+					<p>Please enable JavaScript to use file uploader.</p>
+				</noscript>         
+			</span>
+			</span>
+		</p>
+		<p>
+			<label for="description">Description:<br /><span class="faint">(optional)</span></label>
+			<textarea id="description" name="description">{% if description %}{{ description }}{% endif %}</textarea>
+		</p>
+		
+		<p><button type="submit">{% if editing %}Edit link{% else %}Create link{% endif %}</button></p>
+		
+		{% if editing %}
+		<div class="mini-rule"></div>
+		
+		<div id="link-options">
+			<h4>Additional link options:</h4>
+			<p>
+				<label for="download_limit">Download limit:</label>
+				<input id="download_limit" name="download_limit" type="text" placeholder="0" {% if download_limit %}value="{{ download_limit }}"{% endif %} title="The number of people that can purchase this item. 0 means <em>no limit</em>!"/>
+			</p>
+		</div>
+		
+		{% endif %}
+				
+		<div class="rainbow bar"></div>
+	</form>
+
+	<p id="below-form-p">&nbsp;</p>
 
 {% include "includes/footer.html" %}
 

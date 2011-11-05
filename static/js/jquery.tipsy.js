@@ -96,7 +96,7 @@
         
         tip: function() {
             if (!this.$tip) {
-                this.$tip = $('<div class="tipsy"></div>').html('<div class="tipsy-arrow"></div><div class="tipsy-inner"></div>');
+                this.$tip = $('<div class="tipsy"></div>').html('<div class="tipsy-inner"></div><div class="tipsy-arrow"></div>');
             }
             return this.$tip;
         },
@@ -178,7 +178,7 @@
         html: false,
         live: false,
         offset: 0,
-        opacity: 0.8,
+        opacity: 1.0,
         title: 'title',
         trigger: 'hover'
     };

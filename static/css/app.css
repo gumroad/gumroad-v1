@@ -1,0 +1,80 @@
+/* app header */
+
+#header p#account-navigation { color: #ccc; }
+
+#account-navigation span, #account-navigation a { margin: 0 10px; }
+    #account-navigation .balance { color: #6c6b65; }
+    #account-navigation a:last-child { margin-right: 0; }
+    
+/* app main */
+
+#app #large-form, #app #dashboard {
+    margin-top: 50px;
+}
+
+#app #large-form input, #app textarea { width: 706px; margin-right: 0; }
+
+#app #large-form button, #link #large-form button { margin-left: 170px; padding: 11px 15px 12px; }
+#create-link-button { float: right; margin-bottom: 0; }
+#delete_link { float: right; }
+#dashboard.links-page h3 { padding-top: 10px; margin-bottom: 5px; }
+
+#large-form .mini-rule, #dashboard .mini-rule { margin-top: 30px; clear: both; }
+
+#links { padding: 8px 0 0; }
+
+    #links li {
+        color: #454545;
+        margin-top: 12px;
+    } #links li a { color: #252a2d; font-size: 18px; line-height: 27px; }
+
+    #links li small { color: #80878d; font-size: 16px; margin-left: 10px; }
+
+/* editing link */
+
+.facebook.button { float: left; }
+#share-box p { display: inline-block; margin: 0 auto; padding: 0 0 0 30px; width: 440px; }
+    #share-box p input { width: 420px; border: 1px solid #ccc; text-align: center; }
+#link_to_share:hover { cursor: pointer; border: 1px solid #bbb; }
+.twitter.button { float: right; }
+
+#share-box {
+    clear: both;
+    margin: 50px 0;
+    font-size: 16px; line-height: 24px;
+    background: rgba(0, 0, 0, .1);
+    padding: 30px 30px 20px;
+    border: 1px solid #d4d4d4;
+    border-radius: 10px;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, .05), 0 0 9px rgba(0, 0, 0, .1);
+}
+
+#analytics-box { text-align: center; margin: 20px auto 0; height: 28px; }
+    #analytics-box p { width: 100%; padding: 0; }
+    #analytics-box img { position: relative; top: 5px; }
+#app #large-form.editing-link { margin-top: 30px; }
+
+/* buying link */
+
+#link #wrapper { width: 600px; }
+
+#link #link-content { width: 100%; padding: 30px 0; }
+
+#link #header { padding-bottom: 30px; }
+
+    #link #header h1 { margin: 0; }
+    #link #header p { margin-top: 8px; color: #797874; }
+    #link #header p strong { color: #252a2d; }
+
+#description-box {
+    clear: both;
+    margin: 0 0 30px;
+    font-size: 16px; line-height: 24px;
+    background: rgba(0, 0, 0, .1);
+    padding: 20px 30px;
+    border: 1px solid #d4d4d4;
+    border-radius: 10px;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, .05), 0 0 9px rgba(0, 0, 0, .1);
+} #description-box p:last-child { margin: 0; }
+
+input[type=text]#card_security_code { width: 108px; }

@@ -1,32 +1,33 @@
 {% include "includes/header.html" %}
-
-<div id="main-wrapper">
-	<div id="main">
-		{% include "includes/navigation.html" %}
-		<div id="dashboard">
-			{% if show_error %}
-			<h2 class="error">{{ error_message }}</h2>
-			{% else %}
-			<h2>Last {{number_of_days}} day{{s}}:</h2>
-			{% endif %}
-			
-			<div class="chart">
-			{% if show_chart %}
-				<img src="http://chart.apis.google.com/chart?chxr=0,0,{{chart_max}}&chf=bg,s,f9f9f9&chxt=y&chbh=a&chs=640x225&chco=CC333F,EB6841&cht=bvg&chds=0,{{chart_max}}&chd=t:{{chart_numbers}}" width="640" height="225" />
-			{% else %}
-			<p>Wait a few days and a chart will show up here!</p>
-			{% endif %}
-			</div>
-			
-			<div id="history">
-				<h3>History:</h3>
-				<p><strong>${{ last_seven_days_purchase_total }}</strong> in the past 7 days.</p>
-				<p><strong>${{ last_month_purchase_total }}</strong> in the past month.</p>
-				<p><strong>${{ purchase_total }}</strong> in total.</p>
-			</div>			
+	
+	<div id="dashboard">
+		{% if show_error %}
+		<h3 class="error">{{ error_message }}</h2>
+		{% else %}
+		<h3>Last {{number_of_days}} day{{s}}</h2>
+		{% endif %}
+		
+		<div class="chart">
+		{% if show_chart %}
+			<img src="http://chart.apis.google.com/chart?chxr=0,0,{{chart_max}}&chf=bg,s,f9f9f9&chxt=y&chbh=a&chs=640x225&chco=CC333F,EB6841&cht=bvg&chds=0,{{chart_max}}&chd=t:{{chart_numbers}}" width="640" height="225" />
+		{% else %}
+		<p>Wait a few days and a chart will show up here!</p>
+		{% endif %}
 		</div>
+		
+		<div class="mini-rule"></div>
+		
+		<div id="history">
+			<h4>History:</h4>
+			<p><strong>${{ last_seven_days_purchase_total }}</strong> in the past 7 days.</p>
+			<p><strong>${{ last_month_purchase_total }}</strong> in the past month.</p>
+			<p><strong>${{ purchase_total }}</strong> in total.</p>
+		</div>
+
+		<div class="rainbow bar"></div>
 	</div>
-</div>
+	
+	<p id="below-form-p">&nbsp;</p>
 
 {% include "includes/footer.html" %}
 

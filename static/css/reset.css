@@ -11,6 +11,7 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 	padding: 0;
 	border: 0;
 	outline: 0;
+	font-weight: normal;
 	font-size: 100%;
 	vertical-align: baseline;
 }

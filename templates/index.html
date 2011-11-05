@@ -1,49 +1,44 @@
 {% include "includes/header.html" %}
 
-	<div id="main-wrapper">
-	<div id="main">
-	
-		<script type="text/javascript">
-		
-		$(document).ready(function() {
-			
-			$("#watch-video-link").fancybox({
-		        'autoScale'     	: true,
-		        'transitionIn'		: 'none',
-				'transitionOut'		: 'none',
-				'type'				: 'iframe'
-			});
-
-			function formatTitle(title, currentArray, currentIndex, currentOpts) {
-			    return '<div id="tip7-title"><span><a href="javascript:;" onclick="$.fancybox.close();"><img src="/data/closelabel.gif" /></a></span>' + (title && title.length ? '<b>' + title + '</b>' : '' ) + 'Image ' + (currentIndex + 1) + ' of ' + currentArray.length + '</div>';
-			}
-
-		});
-		</script>
-	
 		<div id="intro">
-            <ol>                    
-                <li><div id="stepone" class="list-number">1</div><h3>Create something.</h3><p>This can be anything. Music, video, audio, a blog post, a quote, anything digital. Really, anything.</p></li> 
-                <li><div id="steptwo" class="list-number">2</div><h3>Share it.</h3><p>Just like any other link. Choose your own price. No store, no management. Just <a href="http://gumroad.com/l/hjbaod">a link</a>, for example.</p></li> 
-                <li><div id="stepthree" class="list-number">3</div><h3>Make money.</h3><p>That's it! Just keep creating awesome content and we'll keep making it really easy to sell. Deal?</p></li> 
-            </ol>
-			<p id="watch-video">Don't get it? <a href="http://www.youtube.com/embed/CJqWkcncOuY" class="iframe" id="watch-video-link">Watch a video</a>.</p>
-		</div>
-		<div id="main-page-form">
-			{% if show_error %}
-			<h2 class="error">{{ error_message }}</h2>
-			{% else %}
-			<h2>Start selling in seconds:</h2>
-			{% endif %}
-			<form action="/" method="post">
-				<p><label for="email">Email address:</label>
-				<input name="email" type="text" placeholder="email address" {% if email_address %}value="{{email_address}}"{% endif %} />
-				<label for="password">Password:</label>
-				<input name="password" type="password" placeholder="password" /></p>
-				<p class="last-p"><button type="submit">Start Making Money</button></p>
+			<div id="video"></div>
+
+			<div id="intro-text">
+				<h2>Share and sell your digital content<!-- <br /> --> with just a link.</h2>
+				<p id="description">Selling stuff has always been a pain. No longer! Get back to creating.<!-- <br /> -->We make selling stuff as easy as sharing is.</p>
+
+				<ul>
+					<li id="we-handle-payments">
+						<h5>We handle all the payment stuff!</h5>
+						<p>You should be focused on creating awesome content. We'll deal with the rest.</p>
+					</li>
+					<li id="worldwide">
+						<h5>Don't change a thing.</h5>
+						<p>You're used to interacting with your fans and followers on the channels that already exist. You <em>are</em> the distribution. Sell just like you share.</p>
+					</li>
+				</ul>
+			</div>
+
+			<form id="large-form" action="/" method="post">
+				{% if show_error %}
+				<h3>Sign up for Gumroad <small class="error">{{ error_message }}</small></h3>
+				{% else %}
+				<h3>Sign up for Gumroad <small>Fill in the simple form below and start selling in minutes</small></h3>
+				{% endif %}
+				<p>
+					<input type="text" placeholder="Email Address" name="email" {% if email_address %}value="{{email_address}}"{% endif %} />
+					<input type="password" placeholder="Password" name="password" />
+					<button type="submit">Start selling!</button>
+				</p>
+				<div class="rainbow bar"></div>
 			</form>
+		</div> <!-- intro -->
+		
+		<div id="press">
+			<div class="testimonial">
+				<blockquote>&#8220;Incredibly easy&hellip; in fact, just writing this, I&#8217;m coming up with ideas and kicking myself for having not sold things in the past. Fortunately, moving forward, I won&#8217;t have to kick myself anymore.&#8221;</blockquote>
+				<span class="writer">Brad McCarty  - <a href="http://thenextweb.com/apps/2011/04/09/gumroad-sell-digital-goods-with-a-link-no-storefront-needed/">The Next Web</a></span>
+			</div>
 		</div>
-	</div>
-	</div>
 
 {% include "includes/footer.html" %}

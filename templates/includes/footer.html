@@ -1,20 +1,12 @@
-
-	<div id="footer-wrapper">
-	<div id="footer">
-		<ul>
-			<li><a href="/about">About</a> <span class="faint">&bull;</span></li>
-			<li><a href="/faq">FAQ</a> <span class="faint">&bull;</span></li>
-			<li><a href="http://twitter.com/gumroad/">Twitter</a> <span class="faint">&bull;</span></li>
-			<li><a href="http://facebook.com/gumroad/">Facebook</a></li>
-		</ul>
-		
-		<div id="info">
-			{% include "includes/copyright-p.html" %}
+{% if not hide_footer %}
+		<div id="push"></div>
+	</div>
+		<div id="footer">
+			<div id="inner-footer">
+				{% include "includes/copyright-p.html" %}
+				<p id="footer-navigation"><a href="/about">About</a> &bull; <a href="/faq">FAQ</a> &bull; <a href="http://twitter.com/gumroad/">Twitter</a> &bull; <a href="http://facebook.com/gumroad/">Facebook</a><!-- &bull; <a href="#">Help</a> --></p>
+			</div>
 		</div>
-	</div>
-	</div>
-
-</div>
-
+{% endif %}
 </body>
 </html>

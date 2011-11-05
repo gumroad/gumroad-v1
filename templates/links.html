@@ -1,0 +1,26 @@
+{% include "includes/header.html" %}
+	
+	<div id="dashboard" class="links-page">
+		<h3>{{number_of_links}} link{{s}} <small>{{links_message}}</small></h3>
+
+		<a href="/create" class="button" id="create-link-button">Create link</a>
+
+		{% if number_of_links %}
+
+		<div class="mini-rule"></div>		
+
+		<ul id="links">
+		    {% for link in links %}
+			<li><a href="/edit/{{ link.unique_permalink }}">{{ link.name }}</a> <small>${{link.formatted_price}}</small></li>			
+			{% endfor %}
+		</ul>
+
+		{% endif %}
+
+		<div class="rainbow bar"></div>
+	</div>
+	
+	<p id="below-form-p">&nbsp;</p>
+
+{% include "includes/footer.html" %}
+

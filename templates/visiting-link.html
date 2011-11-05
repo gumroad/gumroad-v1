@@ -1,140 +1,37 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
-	"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-{% include "includes/head.html" %}
-<body{% if body_id %} id="{{ body_id }}"{% endif %}>
-	
-<div id="wrapper">
-	<div id="header-bar">
-		<div id="one"></div>
-		<div id="two"></div>
-		<div id="three"></div>
-		<div id="four"></div>
-		<div id="five"></div>
-	</div>
-	<div id="progress"></div>
-	
-	<div id="header-wrapper">	
-	<div id="header">
-		<ul>
-			{% if show_login_link %}
-			<li>Have an account? <a href="/login">Login!</a></li>
-			{% else %}
-			{% if logged_in %}
-			<li><a href="/account">Account</a> <span class="light" style="margin: 0 10px 0 0;">&bull;</span> <span class="balance">${{ user_balance }}</span> <span class="light">&bull;</span> <a href="/logout">Logout</a></li>			
-			{% else %}
-			<li>Thanks for using Gumroad! <a href="mailto:hi@gumroad.com">Feedback?</a></li>
-			{% endif %}
-			{% endif %}
-		</ul>
-		<a href="/" id="logo"><h1>Gumroad</h1></a>
-		<h2>{% if user_name %}{{user_name}} is sharing {{ name }} with you! {% else %} You're being shared {{ name }}! {% endif %}</h2>
-	</div>
+{% include "includes/header.html" %}
 	
 	<script type="text/javascript">
 		$(document).ready(function(){
-
-			var progress = 0;
-			var date_month_progress = 0;
-			var date_year_progress = 0;
-			var progress_string = '0%';
-
-			function monitor()
-			{				
-				progress = 0;
-				if ($("#card_number").val().length > 7) { progress += 34; }
-				if ($("#card_security_code").val().length > 2) { progress += 34; }
-				progress = progress + date_year_progress + date_month_progress;
-				
-				animate_progress();
-			}
-			
-			$('#date_month').change(function() {
-				date_month_progress = 17; 
-				animate_progress();
-			});
-			
-			$('#date_year').change(function() {
-				date_year_progress = 17; 
-				animate_progress();
-			});
-			
-			$("#card_number").keyup(monitor);
-			$("#card_security_code").keyup(monitor);
-			
-			$("#submit_button").click(function() {
-				$("#progress").animate({
-					'width': '100%'
-				}, 1000, function() {
-					//animation complete.
-				});
-			});
-			
-			function animate_progress()
-			{								
-				progress = Math.min(progress, 100)	
-				progress_string = progress + '%';
-						
-				$("#progress").animate({
-					'width': progress_string
-				}, 1000, function() {
-					console.log('animation complete');
-				});
-			}
 						
 			$('form').submit(function() {
 				process_payment();
 				return false;
 			});
 
-			$('#paypal-link').click(function() {
-				process_paypal();
-				return false;
-			});			
-
 			function process_payment() {
-								
-				$('#payment-box h2').text('Processing...');
-				$('#payment-box h2').removeClass('error');
-				$.post("/l/{{permalink}}", $("#payment-form").serialize(), 
+				$('#large-form h3').text('Processing...');
+				$('#large-form h3').removeClass('error');
+				$.post("/l/{{permalink}}", $("#large-form").serialize(), 
 				function(data){
-					if (data.success)
-					{
-						$('#payment-box h2').text('Success! Redirecting...');
+					if (data.success) {
+						$('#large-form h3').text('Success!');
 						window.location.href = data.redirect_url;
 					} else {
-						$('#payment-box h2').text(data.error_message);
-						$('#payment-box h2').addClass('error');
+						$('#large-form h3').text(data.error_message);
+						$('#large-form h3').addClass('error');
 					}
 				});					
 			}
-			
-			function process_paypal() {
-								
-				$('#payment-box h2').text('Doing magic...');
-				$('#payment-box h2').removeClass('error');
-				$.post("/paypal/{{permalink}}", $("#payment-form").serialize(), 
-				function(data){
-					if (data.success)
-					{
-						$('#payment-box h2').text('Success! Redirecting...');
-						window.location.href = data.redirect_url;
-					} else {
-						$('#payment-box h2').text(data.error_message);
-						$('#payment-box h2').addClass('error');
-					}
-				});					
-			}
-			
-		    $('#card_number').tipsy({trigger: 'focus', gravity: 'w', html: 'true'});
-		    $('#card_security_code').tipsy({trigger: 'focus', gravity: 'w', html: 'true'});
-
 		});
 
 	</script>
 	
+<div id="link-content">
+	
+	<div id="header">
+		<a href="/"><h1 id="logo">Gumroad</h1></a>
+		<p>Buying <strong>{{name}}</strong>{% if user_name %} from {{user_name}}{% endif %}</p>
+	</div>
 	
 	{% if show_description %}
 		<div id="description-box">
@@ -142,13 +39,13 @@
 		</div>
 	{% endif %}
 	
-	<div id="payment-box">
-		<h2>Pay ${{ price }} to buy it:</h2>
-		<form id="payment-form" name="payment-form" action="" method="post">
+		<form id="large-form" name="large-form" action="" method="post">
+
+			<h3>Pay ${{ price }} to buy it:</h3>
 			
 			<p>
 				<label for="card_number">Card Number:</label>
-				<input id="card_number" name="card_number" placeholder="Card number" title="We do <em>not</em> store this! We charge your card and that's it." size="30" type="text" {% if card_number %}value="{{card_number}}"{% endif %}/>
+				<input id="card_number" name="card_number" placeholder="Card number" size="30" type="text" {% if card_number %}value="{{card_number}}"{% endif %}/>
 			</p>		
 		
 			<p id="expiry_p">
@@ -166,7 +63,7 @@
 						<option {% ifequal expiry_month 10 %}selected="selected"{% endifequal %} value="10">October</option>
 						<option {% ifequal expiry_month 11 %}selected="selected"{% endifequal %} value="11">November</option>
 						<option {% ifequal expiry_month 12 %}selected="selected"{% endifequal %} value="12">December</option>	
-					  </select> / <select id="date_year" name="date_year">
+					  </select> <span id="slash">/</span> <select id="date_year" name="date_year">
 						<option {% ifequal expiry_year 2011 %}selected="selected"{% endifequal %} value="2011">2011</option>
 						<option {% ifequal expiry_year 2012 %}selected="selected"{% endifequal %} value="2012">2012</option>
 						<option {% ifequal expiry_year 2013 %}selected="selected"{% endifequal %} value="2013">2013</option>
@@ -192,23 +89,14 @@
 				
 				<p>
 					<label for="card_security_code">Card Security Code:</label>
-					<input id="card_security_code" name="card_security_code" placeholder="Security code" title="We do <em>not</em> store this either!" size="10" type="text" {% if cvv %}value="{{cvv}}"{% endif %}/>
+					<input id="card_security_code" name="card_security_code" placeholder="Security code" size="10" type="text" {% if cvv %}value="{{cvv}}"{% endif %}/>
 				</p>
 				
-				<p class="last-p"><button type="submit" id="submit_button">Go!</button></p>
-		</form> 		
+				<p class="last-p"><button type="submit" id="submit_button">Purchase</button></p>
+				
+				<div class="rainbow bar"></div>
+		</form>			
 	</div>
 	
-	<p id="paypal-p"><span class="arrow">&uarr;</span> or you can <a href="#" id="paypal-link">pay using <strong>PayPal</strong>!</a></p>
 </div>
-
-	<div id="footer-wrapper">
-	<div id="footer">
-		{% include "includes/copyright-p.html" %}
-	</div>
-	</div>
-
-</div>
-
-</body>
-</html>
+{% include "includes/footer.html" %}

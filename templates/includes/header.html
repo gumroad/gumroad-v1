@@ -5,32 +5,31 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 {% include "includes/head.html" %}
 <body{% if body_id %} id="{{ body_id }}"{% endif %}>
+	<div class="top-bar"></div>
 	
-<div id="wrapper">
-	<div id="header-bar">
-		<div id="one"></div>
-		<div id="two"></div>
-		<div id="three"></div>
-		<div id="four"></div>
-		<div id="five"></div>
-	</div>
-	
-	<div id="header-wrapper">	
-	<div id="header">
-		<div id="logo-space">
-			<a href="/" id="logo"><h1>Gumroad</h1></a>
-			<h2 class="slogan">Sell like you share.</h2>
-		</div>
-		<ul>
+	<div id="wrapper">
+		{% if not hide_header %}
+		<div id="header">
+			<a href="/"><h1 id="logo">Gumroad</h1></a>
+
 			{% if show_login_link %}
-			<li>Have an account? <a href="/login">Login!</a></li>
+			<p>Have an account? <a href="/login" id="login-link" class="underline">Login</a></p>
 			{% else %}
 			{% if logged_in %}
-			<li><a href="/account">Account</a> <span class="light" style="margin: 0 10px 0 0;">&bull;</span> <span class="balance">${{ user_balance }}</span> <span class="light">&bull;</span> <a href="/logout">Logout</a></li>			
+			<p id="account-navigation"><a href="/links">Your links</a> &bull; <span class="balance">${{ user_balance }}</span> &bull; <a href="/settings">Settings</a> &bull; <a href="/logout">Logout</a></p>			
 			{% else %}
-			<li>Thanks for using Gumroad! <a href="mailto:hi@gumroad.com">Feedback?</a></li>
+			<p>Thanks for using Gumroad! <a href="mailto:hi@gumroad.com">Feedback?</a></p>
 			{% endif %}
 			{% endif %}
-		</ul>
-	</div>	
-	</div>
+
+			<ul id="navigation" class="hidden">
+				<li><a href="#">Tour</a></li>
+				<li><a href="#">Examples</a></li>
+				<li><a href="#">Sign up</a></li>
+				<li><a href="/faq">FAQ</a></li>
+			</ul>
+		</div>
+
+		<div class="rule"></div>
+		{% endif %}
+		

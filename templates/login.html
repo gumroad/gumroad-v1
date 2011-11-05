@@ -1,28 +1,19 @@
 {% include "includes/header.html" %}
-
-	<div id="main-wrapper">
-	<div id="main">
 	
-		<div id="main-page-form" class="login-form">
-			{% if show_error %}
-			<h2 class="error">{{ error_message }}</h2>
-			{% else %}
-			<h2>Login to your account:</h2>
-			{% endif %}			
-			<form action="/login" method="post">
-				<p>
-					<label for="email">Email address:</label>
-					<input name="email" type="text" placeholder="email address" {% if email_address %}value="{{email_address}}"{% endif %} />
-				</p>
-				<p>
-					<label for="password">Password:</label>
-					<input name="password" type="password" placeholder="password" />
-				</p>
-				<p class="last-p"><button type="submit">Login</button></p>
-			</form>
-		</div>
-		<p id="forgot-password"><a href="/forgot-password">Forgot your password?</a> We all do.</p>
-	</div>
-	</div>
+	<form id="large-form" action="/login" method="post">
+		{% if show_error %}
+		<h3>Log in to Gumroad <small class="error">{{ error_message }}</small></h3>
+		{% else %}
+		<h3>Log in to Gumroad <small>Did we tell you we love you?</small></h3>
+		{% endif %}
+		<p>
+			<input type="text" placeholder="Email Address" name="email" {% if email_address %}value="{{email_address}}"{% endif %} />
+			<input type="password" placeholder="Password" name="password" />
+			<button type="submit">Log in</button>
+		</p>
+		<div class="rainbow bar"></div>
+	</form>
+
+	<p id="below-form-p"><a href="/forgot-password">Forgot your password?</a> We all do.</p>
 
 {% include "includes/footer.html" %}

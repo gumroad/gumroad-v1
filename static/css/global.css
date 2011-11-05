@@ -1,0 +1,201 @@
+* { border: 0; margin: 0; padding: 0; outline: 0; }
+
+html { height: 100%; }
+
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    -webkit-text-size-adjust: none;
+    background: url(../images/bg.png) #fdfbf1;
+    color: #797874;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .4);
+    font-size: 13px; line-height: 21px;
+
+    height: 100%;
+}
+
+.hidden { display: none !important; }
+.clear { clear: both; }
+
+a { color: #36a9ae; text-decoration: none; }
+a:hover { text-decoration: underline; }
+.underline { text-decoration: underline; }
+.underline:hover { text-decoration: none; }
+
+.error { color: #c04355 !important; }
+.rule { display: block; margin: 10px 0; width: 100%; height: 3px; background: url(../images/rule-dots.png); opacity: .15; }
+.mini-rule { display: block; margin: 10px 0; width: 100%; height: 1px; background: url(../images/rule-dots.png); opacity: .15; }
+    .background { position: relative; top: -22px; z-index: -1; }
+.rainbow { background: url(../images/rainbow-bar.png); }
+.faint { opacity: .4; }
+
+#wrapper {
+    min-height: 100%;
+	height: auto !important;
+	height: 100%;
+	margin: 0 auto -140px;
+
+    width: 960px;
+}
+
+/* ui + form elements */
+
+input[type=text], input[type=password], textarea {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 17px; line-height: 17px;
+    border-radius: 4px;
+    background: #f1f1f1;
+    border: 1px solid #ddd;
+    color: #999891;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, .4);
+    padding: 10px;
+    box-shadow: inset 0 1px 0px rgba(0, 0, 0, .02);
+    margin-right: 15px;
+}
+
+input[type=text]:focus, input[type=password]:focus, textarea:focus {
+    border: 1px solid #bbb;
+    box-shadow: 0 0 5px rgba(0, 0, 0, .1);
+}
+
+textarea { width: 320px; min-height: 100px; }
+
+select {
+    height: 30px;
+    color: #888;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 18px;
+	background: #fff;
+    border: 1px solid #ddd;
+} #slash { margin: 0 10px; }
+
+#large-form, #dashboard {
+    position: relative;
+    clear: both; background: #fff;
+    padding: 30px 30px 34px;
+    border: 1px solid #d4d4d4;
+    -webkit-border-top-left-radius: 10px;
+    -webkit-border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, .05), 0 0 9px rgba(0, 0, 0, .1);
+}
+
+#large-form h3, #dashboard h3 {
+    color: #252a2e;
+    display: inline-block;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 10px;
+} #large-form h3 small, #dashboard h3 small { color: #80878d; font-size: 15px; margin-left: 10px; font-style: italic; }
+
+#large-form h4, #dashboard h4 {
+    color: #252a2d;
+    font-size: 18px; line-height: 27px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+}
+
+#large-form p, #dashboard p { margin-top: 20px; clear: both; }
+    #large-form p:last-child, #dashboard p:last-child { margin-bottom: 0; }
+
+#large-form label {
+    padding-top: 9px;
+    float: left;
+    display: inline-block;
+    width: 170px;
+    font-size: 17px; line-height: 24px;
+}
+
+#large-form input {
+    width: 330px;
+}
+
+#large-form button, .button {
+    background: #43a7ab;
+    color: #fff;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, .2);
+    padding: 11px 30px 12px;
+    font-size: 17px; line-height: 17px;
+    border-radius: 4px;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    cursor: pointer !important;
+    
+    border: 1px solid #2b8c90;
+    box-shadow: inset 0 0 2px rgba(255, 255, 255, .2), 0 1px 1px rgba(0, 0, 0, .4);
+    
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#69c1c5', endColorstr='#259397'); /* for IE */
+    background: -webkit-gradient(linear, left top, left bottom, from(#69c1c5), to(#259397)); /* for webkit browsers */
+    background: -moz-linear-gradient(top,  #69c1c5,  #259397); /* for firefox 3.6+ */
+}
+
+#large-form button:hover, .button:hover {
+    box-shadow: inset 0 0 2px rgba(255, 255, 255, .2), 0 1px 1px rgba(0, 0, 0, .4), 0 0 5px #43a7ab;
+}
+
+#large-form button:active, .button:active {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, .2), 0 1px 1px rgba(0, 0, 0, .4), 0 0 0 #43a7ab;
+}
+
+#large-form .bar, #dashboard .bar {
+    height: 4px; width: 100%;
+    bottom: 0; left: -1px; padding-right: 2px;
+    box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .2);
+    position: absolute;
+}
+
+/* header */
+
+.top-bar {
+    background: url(../images/top-bar.png) top center;
+    height: 140px; width: 100%;
+    position: absolute;
+    top: 0; z-index: -1;
+}
+
+h1#logo {
+    margin-top: 10px;
+    background: url(../images/gumroad-logo-type.png) no-repeat;
+    float: left;
+    display: block;
+    width: 168px; height: 46px;
+    font-weight: bold;
+    text-decoration: none;
+    text-indent: -9999px;
+    color: #24292d;
+    font-size: 36px;
+}
+
+/* footer */
+
+#push { height: 100px; }
+
+#footer {
+    margin-top: 40px;
+    padding: 40px 0 0;
+    height: 60px;
+    background: #000;
+    background: url(../images/footer-bg.png) repeat-x top center #f5f3e5;
+    box-shadow: 0 0 20px rgba(0, 0, 0, .05);
+}
+    
+    #inner-footer {
+        width: 960px;
+        margin: 0 auto;
+        color: #959490;
+        font-size: 13px;
+    }
+    
+    #copyright { float: left; }
+    #footer-navigation { float: right; color: #ccc; }
+    
+    #inner-footer a { color: #6c6b65; margin: 0 10px; }
+    #inner-footer a:last-child { margin-right: 0; }
+
+
+
+
+
+
+

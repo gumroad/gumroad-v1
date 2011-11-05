@@ -5,6 +5,9 @@ api_version: 1
 
 handlers:
     
+- url: .+/ 
+  script: slashmurderer.py
+    
 - url: /static/css
   static_dir: static/css
   
