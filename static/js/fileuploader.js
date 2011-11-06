@@ -19,8 +19,6 @@ qq.FileUploader = function(o){
     this._options = {
         // container element DOM node (ex. $(selector)[0] for jQuery users)
         element: null,
-        // url of the server-side upload script, should be on the same domain
-        action: '/server/upload',
         // additional data to send, name-value pairs
         params: {},
         // ex. ['jpg', 'jpeg', 'png', 'gif'] or []
@@ -524,10 +522,6 @@ qq.UploadButton.prototype = {
  */
 qq.UploadHandlerForm = function(o){
     this._options = {
-        // URL of the server-side upload script,
-        // should be on the same domain to get response
-        action: '/upload',
-        // fires for each file, when iframe finishes loading
         onComplete: function(id, fileName, response){}
     };
     qq.extend(this._options, o);
@@ -540,7 +534,7 @@ qq.UploadHandlerForm.prototype = {
      * Returns id to use with upload, cancel
      **/    
     add: function(fileInput){
-        fileInput.setAttribute('name', 'qqfile');
+        fileInput.setAttribute('name', 'file');
         var id = 'qq-upload-handler-iframe' + qq.getUniqueId();       
         
         this._inputs[id] = fileInput;
@@ -667,19 +661,9 @@ qq.UploadHandlerForm.prototype = {
      * Creates form, that will be submitted to iframe
      */
     _createForm: function(iframe, params){
-        // We can't use the following code in IE6
-        // var form = document.createElement('form');
-        // form.setAttribute('method', 'post');
-        // form.setAttribute('enctype', 'multipart/form-data');
-        // Because in this case file won't be attached to request
         var form = qq.toElement('<form method="post" enctype="multipart/form-data"></form>');
 
-        var queryString = '?';
-        for (var key in params){
-            queryString += '&' + key + '=' + encodeURIComponent(params[key]);
-        }
-
-        form.setAttribute('action', this._options.action + queryString);
+        form.setAttribute('action', this._options.action);
         form.setAttribute('target', iframe.name);
         form.style.display = 'none';
         document.body.appendChild(form);
@@ -693,9 +677,6 @@ qq.UploadHandlerForm.prototype = {
  */
 qq.UploadHandlerXhr = function(o){
     this._options = {
-        // url of the server-side upload script,
-        // should be on the same domain
-        action: '/upload',
         onProgress: function(id, fileName, loaded, total){},
         onComplete: function(id, fileName, response){}
     };
@@ -777,7 +758,7 @@ qq.UploadHandlerXhr.prototype = {
             queryString += '&' + key + '=' + encodeURIComponent(params[key]);
         }
 
-        xhr.open("POST", this._options.action + queryString, true);
+        xhr.open("POST", this._options.action, true);
         xhr.send(file);        
     },
     cancel: function(id){

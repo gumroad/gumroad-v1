@@ -16,7 +16,7 @@
 			<p>Have an account? <a href="/login" id="login-link" class="underline">Login</a></p>
 			{% else %}
 			{% if logged_in %}
-			<p id="account-navigation"><a href="/links">Your links</a> &bull; <span class="balance">${{ user_balance }}</span> &bull; <a href="/settings">Settings</a> &bull; <a href="/logout">Logout</a></p>			
+			<p id="account-navigation">{% if not on_links_page %}<a href="/links">Your links</a>{% else %}<a href="/home">Home</a>{% endif %} &bull; <span class="balance">${{ user_balance }}</span> &bull; <a href="/settings">Settings</a> &bull; <a href="/logout">Logout</a></p>			
 			{% else %}
 			<p>Thanks for using Gumroad! <a href="mailto:hi@gumroad.com">Feedback?</a></p>
 			{% endif %}

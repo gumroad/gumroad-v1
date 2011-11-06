@@ -32,12 +32,6 @@
 
 /* editing link */
 
-.facebook.button { float: left; }
-#share-box p { display: inline-block; margin: 0 auto; padding: 0 0 0 30px; width: 440px; }
-    #share-box p input { width: 420px; border: 1px solid #ccc; text-align: center; }
-#link_to_share:hover { cursor: pointer; border: 1px solid #bbb; }
-.twitter.button { float: right; }
-
 #share-box {
     clear: both;
     margin: 50px 0;
@@ -48,6 +42,34 @@
     border-radius: 10px;
     box-shadow: inset 0 0 4px rgba(0, 0, 0, .05), 0 0 9px rgba(0, 0, 0, .1);
 }
+
+    #share-box p { display: inline-block; margin: 0 auto; padding: 0 0 0 30px; width: 440px; }
+        #share-box p input { width: 416px; border: 1px solid #ccc; text-align: center; background: #fff; }
+    #link_to_share:hover { cursor: pointer; border: 1px solid #bbb; }
+
+    .facebook.button {
+        float: left;
+    
+        background: #6e8ccb;
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#88a6e5', endColorstr='#5f7dbc'); /* for IE */
+        background: -webkit-gradient(linear, left top, left bottom, from(#88a6e5), to(#5f7dbc)); /* for webkit browsers */
+        background: -moz-linear-gradient(top,  #88a6e5,  #5f7dbc); /* for firefox 3.6+ */
+        border: 1px solid #5371b0;
+    }
+    
+    .facebook.button:hover { box-shadow: inset 0 0 2px rgba(255, 255, 255, .2), 0 1px 1px rgba(0, 0, 0, .4), 0 0 5px #6e8ccb; }
+    
+    .twitter.button {
+        float: right;    
+        
+        background: #28add9;
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#4bd0fc', endColorstr='#199eca'); /* for IE */
+        background: -webkit-gradient(linear, left top, left bottom, from(#4bd0fc), to(#199eca)); /* for webkit browsers */
+        background: -moz-linear-gradient(top,  #4bd0fc,  #199eca); /* for firefox 3.6+ */
+        border: 1px solid #0d92be;
+    }
+    
+    .twitter.button:hover { box-shadow: inset 0 0 2px rgba(255, 255, 255, .2), 0 1px 1px rgba(0, 0, 0, .4), 0 0 5px #28add9; }
 
 #analytics-box { text-align: center; margin: 20px auto 0; height: 28px; }
     #analytics-box p { width: 100%; padding: 0; }

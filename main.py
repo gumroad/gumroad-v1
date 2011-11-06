@@ -26,10 +26,15 @@ from appengine_utilities import sessions
 from hashlib import sha256
 from google.appengine.api import mail
 
+from google.appengine.ext import blobstore
+from google.appengine.ext.webapp import blobstore_handlers
+
 import paypal
 import stripe
 
 from utils import post_multipart
+
+ROOT_URL = 'http://localhost:8888'
 
 class Link(db.Model):
     owner = db.StringProperty(required=True)
@@ -45,6 +50,12 @@ class Link(db.Model):
     download_limit = db.IntegerProperty(default=0)
     number_of_views = db.IntegerProperty(default=0)
     balance = db.FloatProperty(default=0.00)
+
+class File(db.Model):
+    unique_permalink = db.StringProperty(required=True)
+    file_object = db.BlobProperty()
+    file_name = db.StringProperty()
+    date = db.DateTimeProperty(auto_now_add=True) 
 
 class Purchase(db.Model):
     owner = db.StringProperty(required=True)
@@ -136,7 +147,7 @@ class MainHandler(webapp.RequestHandler):
         	        success = False
 
         if success:
-            return self.redirect("/home")
+            return self.redirect("/links")
     	else:
             template_values = {
 		        'show_login_link': True,
@@ -174,17 +185,17 @@ def plural(int):
     else:
         return 's'
 
+def file_link(unique_permalink):
+    return ROOT_URL + '/f/' + unique_permalink
+
 def link_to_share(unique_permalink):
-    return 'http://gumroad.com/l/' + unique_permalink
-    #return 'https://gumroad.appspot.com/l/' + unique_permalink
+    return ROOT_URL + '/l/' + unique_permalink
     
 def secure_link_to_share(unique_permalink):
-    #return 'http://gumroad.com/l/' + unique_permalink
     return 'https://gumroad.appspot.com/l/' + unique_permalink
 
 def confirm_link_to_share(unique_permalink):
-    #return 'http://gumroad.com/l/' + unique_permalink
-    return 'https://gumroad.appspot.com/confirm/' + unique_permalink
+    return ROOT_URL + '/confirm/' + unique_permalink
 
 class LogoutHandler(webapp.RequestHandler):
     def get(self):
@@ -426,6 +437,7 @@ class LinksHandler(webapp.RequestHandler):
     	        'user_email': email,
     	        'number_of_links': len(links),
     	        'links': links,
+    	        'on_links_page': True,
     	        'links_message': links_message,
     	        's': s,
     	        'title': 'Gumroad',
@@ -535,7 +547,7 @@ class DeleteHandler(webapp.RequestHandler):
 
         self.redirect("/")
 
-class EditLinkHandler(webapp.RequestHandler):
+class EditLinkHandler(webapp.RequestHandler): #edit link
     def get(self, permalink):
         email = get_user()
 
@@ -557,6 +569,8 @@ class EditLinkHandler(webapp.RequestHandler):
                     conversion = 0
                     hundred_minus_conversion = 100.0
 
+                upload_url = blobstore.create_upload_url('/upload')
+
                 template_values = {
                     'name': link.name,
                     'url_encoded_name': urllib.quote(link.name),
@@ -569,6 +583,7 @@ class EditLinkHandler(webapp.RequestHandler):
                     'conversion': conversion,
                     'hundred_minus_conversion': hundred_minus_conversion,
                     'url': link.url,
+                    'upload_url': upload_url,
                     'description': link.description,
         	        'show_login_link': False,
         	        'editing': True,
@@ -667,26 +682,23 @@ class EditLinkHandler(webapp.RequestHandler):
             path = os.path.join(os.path.dirname(__file__), 'templates/link.html')
             self.response.out.write(template.render(path, template_values))
 
-class FileUploadHandler(webapp.RequestHandler):
-    def get(self):
-        self.redirect("/home")
+class FileHandler(blobstore_handlers.BlobstoreDownloadHandler): #file download
+    def get(self, blob_key):
+        blob_key = str(urllib.unquote(blob_key))
+        blob_info = blobstore.BlobInfo.get(blob_key)
+        self.send_blob(blob_info)
 
+class FileUploadHandler(blobstore_handlers.BlobstoreUploadHandler): #file upload
     def post(self):
-        random_id = "".join([random.choice(string.letters[:26]) for i in xrange(6)])
+        logging.debug('got here!')
 
-        filename = self.request.GET.get('qqfile')
-        data = self.request.body_file.getvalue()
-        logging.debug(filename)
+        upload = self.get_uploads('file')[0]
+        key = str(upload.key())
+        logging.debug(key)
+        
+        return self.redirect('/f/%s' % key)
 
-        result = post_multipart("api.letscrate.com",
-                "/1/files/upload.json",
-                [("crate_id", '14270')],
-                [("file", str(random_id + filename), data)])
-
-        self.response.headers['Content-Type'] = 'application/json'
-        self.response.out.write(json.dumps(result))
-
-class AddLinkHandler(webapp.RequestHandler):
+class AddLinkHandler(webapp.RequestHandler): #add link
     def get(self):
         email = get_user()
 
@@ -698,10 +710,13 @@ class AddLinkHandler(webapp.RequestHandler):
             user = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = email).get()
             links = db.GqlQuery("SELECT * FROM Link WHERE owner = :email", email = email).fetch(999)
 
+            upload_url = blobstore.create_upload_url('/upload')
+
             template_values = {
     	        'show_login_link': False,
     	        'logged_in': True,
     	        'body_id': 'app',
+                'upload_url': upload_url,
     	        'user_email': email,
     	        'number_of_links': len(links),
     	        'links': links,
@@ -1062,7 +1077,7 @@ class AccountHandler(webapp.RequestHandler):
                 success = True
 
             if success:
-                self.redirect("/account")
+                self.redirect("/settings")
             else:
                 template_values = {
                     'name': user.name,
@@ -1610,6 +1625,7 @@ def main():
                                     	  ('/forgot-password', ForgotPasswordHandler),
                                     	  ('/create', AddLinkHandler),
                                     	  ('/l/(\S+)$', LinkHandler),
+                                    	  ('/f/([^/]+)?', FileHandler),
                                     	  ('/paypal/(\S+)$', PaypalHandler),
                                     	  ('/confirm/(\S+)$', ConfirmPaypalHandler),
                                     	  ('/api/create$', ApiCreateLinkHandler),
