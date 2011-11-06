@@ -17,36 +17,7 @@
 			if (r==true) {
 				post_to_url('/delete/{{ permalink }}');
 			}
-		}
-		
-		function createUploader(){
-            var uploader = new qq.FileUploader({
-    			element: document.getElementById('file-uploader'),
-                action: '{{upload_url}}',
-				sizeLimit: 1024*1024*1024, // 1 gig
-                debug: true,
-				onSubmit: function(id, fileName){
-					$(".qq-upload-button").text("Uploading...");
-				},
-				onProgress: function(id, fileName, loaded, total){
-					$(".qq-upload-button").text("Uploading...");					
-				},
-				onCancel: function(id, fileName){
-					$(".qq-upload-button").text("or upload a file...");
-				},
-				onComplete: function(id, fileName, responseJSON) {
-					if (responseJSON['success'] == true) {
-						$(".qq-upload-button").text("Uploaded!");
-						$('#url').val(responseJSON['url']);
-					} else {
-						$(".qq-upload-button").text("Something went wrong.");
-					}
-				},
-				showMessage: function(message){ alert(message); }
-            });
-        }
-
-        createUploader();
+		}	  
 	});
 
 	function popup(url) {
@@ -87,6 +58,46 @@
 		});
 
 	</script>
+	
+		<script type="text/javascript">
+	    $(function() {
+	      var uploader = new plupload.Uploader({
+	        runtimes: 'gears,html5,flash,html4',
+	        browse_button: 'pickfiles',
+	        container: 'container',
+	        url: '{{upload_url}}',
+	                                use_query_string: false,
+	                                multipart: true,
+	                                flash_swf_url: '/static/plupload/plupload.flash.swf',
+	      });
+	      uploader.bind('FilesAdded', function(up, files) {
+	        $.each(files, function(i, file) {
+	          $('#filelist').append(
+	            '<div id="' + file.id + '">' +
+	            'File: ' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b>' +
+	            '</div>'
+	          );
+	        });
+	      });
+	      uploader.bind('UploadProgress', function(up, file) {
+			$('#pickfiles').html(file.percent + '% done uploading...');
+	        $('#' + file.id + ' b').html(file.percent + '%');
+	      });
+	      uploader.bind('FileUploaded', function(up, file, response) {
+			$("#url").val(response.response);
+			$('#pickfiles').html('Uploaded!').addClass('hidden');
+	      });
+	      uploader.bind('Error', function(up, err) {
+			$('#pickfiles').html("Upload error: " + err.message);
+	      });
+	      uploader.bind('QueueChanged', function(up) {
+			$('#pickfiles').html('Upload started...');
+	        uploader.start();
+	      });
+
+	      uploader.init();
+	    });
+	  </script>
 
 	{% if editing %}
 	<div id="share-box">
@@ -101,8 +112,8 @@
 	</div>
 	
 	{% endif %}
-	
-	<form id="large-form" action="/{% if editing %}edit/{{ permalink }}{% else %}add{% endif %}" method="post"{% if editing %} class="editing-link"{% endif %}>
+
+	<form id="large-form" action="/{% if editing %}edit/{{ permalink }}{% else %}create{% endif %}" method="post"{% if editing %} class="editing-link"{% endif %}>
 		{% if editing %}
 		<a href="#" id="delete_link">delete this link</a>
 		<h3>Edit link {% if show_error %}<small class="error">{{ error_message }}</small>{% endif %}</h3>
@@ -121,17 +132,14 @@
 		<p>
 			<label for="url">URL:</label>
 			<input id="url" name="url" type="text" placeholder="http://" {% if url %}value="{{ url }}"{% endif %} />
+			<div id="container"><a id="pickfiles" href="#">Or click to upload a file...</a></div>
 		</p>
-		<p class="">
+		<!-- <p>
 			<label for="file"></label>
 			<span id="file-uploader-wrapper">
-			<span id="file-uploader">		
-				<noscript>			
-					<p>Please enable JavaScript to use file uploader.</p>
-				</noscript>         
+				<div id="container"><a id="pickfiles" href="#">Or click to upload a file...</a></div>
 			</span>
-			</span>
-		</p>
+		</p> -->
 		<p>
 			<label for="description">Description:<br /><span class="faint">(optional)</span></label>
 			<textarea id="description" name="description">{% if description %}{{ description }}{% endif %}</textarea>
@@ -154,11 +162,6 @@
 				
 		<div class="rainbow bar"></div>
 	</form>
-
-	<p>
-		<label for="file">or upload file:</label>
-		<form method="post" action="{{upload_url}}" enctype="multipart/form-data"><input type="file" name="file" /><input type="submit" name="submit" value="Submit" /></form>
-	</p>
 
 	<p id="below-form-p">&nbsp;</p>
 

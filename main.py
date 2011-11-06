@@ -34,7 +34,8 @@ import stripe
 
 from utils import post_multipart
 
-ROOT_URL = 'http://localhost:8888'
+#ROOT_URL = 'http://localhost:8888'
+ROOT_URL = 'http://www.gumroad.com'
 
 class Link(db.Model):
     owner = db.StringProperty(required=True)
@@ -53,8 +54,9 @@ class Link(db.Model):
 
 class File(db.Model):
     unique_permalink = db.StringProperty(required=True)
-    file_object = db.BlobProperty()
+    blob_key = db.StringProperty()
     file_name = db.StringProperty()
+    file_type = db.StringProperty()
     date = db.DateTimeProperty(auto_now_add=True) 
 
 class Purchase(db.Model):
@@ -604,7 +606,7 @@ class EditLinkHandler(webapp.RequestHandler): #edit link
         email = get_user()
 
         if not email:
-            self.redirect("/")
+            return self.redirect("/")
         else:
             user = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = email).get()
             links = db.GqlQuery("SELECT * FROM Link WHERE owner = :email", email = email).fetch(999)
@@ -638,8 +640,7 @@ class EditLinkHandler(webapp.RequestHandler): #edit link
                 link = db.GqlQuery("SELECT * FROM Link WHERE unique_permalink = :permalink", permalink = permalink).get()
 
                 if not link.owner == email:
-                    self.redirect("/home")
-                    success = False
+                    return self.redirect("/home")
                 else:
                     link.owner = email
                     link.name = name
@@ -655,7 +656,7 @@ class EditLinkHandler(webapp.RequestHandler): #edit link
                     success = True
 
         if success:
-            self.redirect("/edit/" + permalink)
+            return self.redirect("/edit/" + permalink)
     	else:
             template_values = {
     	        'name': name,
@@ -682,21 +683,41 @@ class EditLinkHandler(webapp.RequestHandler): #edit link
             path = os.path.join(os.path.dirname(__file__), 'templates/link.html')
             self.response.out.write(template.render(path, template_values))
 
-class FileHandler(blobstore_handlers.BlobstoreDownloadHandler): #file download
-    def get(self, blob_key):
-        blob_key = str(urllib.unquote(blob_key))
+class FileHandler(blobstore_handlers.BlobstoreDownloadHandler): #file download        
+    def get(self, permalink, file_name):
+        f = db.GqlQuery("SELECT * FROM File WHERE unique_permalink = :permalink", permalink = permalink).get()
+
+        if not f:
+            return self.redirect('/404')
+
+        blob_key = f.blob_key
         blob_info = blobstore.BlobInfo.get(blob_key)
         self.send_blob(blob_info)
 
 class FileUploadHandler(blobstore_handlers.BlobstoreUploadHandler): #file upload
     def post(self):
-        logging.debug('got here!')
-
         upload = self.get_uploads('file')[0]
         key = str(upload.key())
-        logging.debug(key)
         
-        return self.redirect('/f/%s' % key)
+        #add file to db
+        x = 1
+        while x == 1:
+            permalink = "".join([random.choice(string.letters[:26]) for i in xrange(6)])
+            new_permalink = Permalink(permalink=permalink)
+            permalinks_from_db = db.GqlQuery("SELECT * FROM Permalink WHERE permalink = :permalink", permalink = permalink)
+            if permalinks_from_db.count() == 0:
+                new_permalink.put()
+                x = 0
+
+        new_file = File(blob_key=key, file_name=upload.filename, unique_permalink=permalink)
+        new_file.put()
+
+        return self.redirect('/f/%s/%s/success' % (permalink, upload.filename))
+
+class AjaxSuccessHandler(webapp.RequestHandler):
+  def get(self, file_id):
+    self.response.headers['Content-Type'] = 'text/plain'
+    self.response.out.write('%s/f/%s' % (self.request.host_url, file_id))
 
 class AddLinkHandler(webapp.RequestHandler): #add link
     def get(self):
@@ -1618,21 +1639,22 @@ def main():
                                     	  ('/links', LinksHandler),
                                     	  ('/logout', LogoutHandler),
                                     	  ('/upload', FileUploadHandler),
-                                    	  ('/delete/(\S+)$', DeleteHandler),
+                                          ('/f/(\S+)/success', AjaxSuccessHandler),
+                                    	  ('/f/(\S+)/(\S+)$', FileHandler),
                                     	  ('/home', HomeHandler),
                                     	  ('/reset-password/(\S+)$', ResetPasswordHandler),
                                     	  ('/password-reset/(\S+)$', ResetPasswordHandler),
                                     	  ('/forgot-password', ForgotPasswordHandler),
                                     	  ('/create', AddLinkHandler),
+                                    	  ('/edit/(\S+)$', EditLinkHandler),
+                                    	  ('/delete/(\S+)$', DeleteHandler),
                                     	  ('/l/(\S+)$', LinkHandler),
-                                    	  ('/f/([^/]+)?', FileHandler),
                                     	  ('/paypal/(\S+)$', PaypalHandler),
                                     	  ('/confirm/(\S+)$', ConfirmPaypalHandler),
                                     	  ('/api/create$', ApiCreateLinkHandler),
                                     	  ('/api/link/stats/(\S+)/(\S+)/(\S+)$', ApiLinkStatsHandler),
                                     	  ('/api/user/stats/(\S+)/(\S+)$', ApiStatsHandler),
                                     	  ('/api/purchase$', ApiPurchaseLinkHandler),
-                                    	  ('/edit/(\S+)$', EditLinkHandler),
                                     	  ('/.*', NotFoundPageHandler)],
                                          debug=True)
     util.run_wsgi_app(application)

@@ -10,7 +10,7 @@ version: 3.0.0pr1
  */
 .yui-cssfonts body, .yui-cssfonts {
 	font:13px/1.231 arial,helvetica,clean,sans-serif;
-	*font-size:small; /* for IE */
+	*font-size:small; 
 	*font:x-small; /* for IE in quirks mode */
 }
 

@@ -126,9 +126,10 @@ select {
     box-shadow: inset 0 0 2px rgba(255, 255, 255, .2), 0 1px 1px rgba(0, 0, 0, .4);
     
     background: #43a7ab;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#69c1c5', endColorstr='#259397'); /* for IE */
-    background: -webkit-gradient(linear, left top, left bottom, from(#69c1c5), to(#259397)); /* for webkit browsers */
-    background: -moz-linear-gradient(top,  #69c1c5,  #259397); /* for firefox 3.6+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#69c1c5', endColorstr='#259397');
+    background: -webkit-gradient(linear, left top, left bottom, from(#69c1c5), to(#259397));
+    background: -moz-linear-gradient(top,  #69c1c5,  #259397);
+    background: -o-linear-gradient(top,  #69c1c5,  #259397);
     border: 1px solid #2b8c90;
 }
 
@@ -139,7 +140,7 @@ select {
 }
 
 #large-form button:active, .button:active {
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, .2), 0 1px 1px rgba(0, 0, 0, .4) !important;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, .2), 0 1px 1px rgba(0, 0, 0, .4) !important; /* important needed for state to apply to share buttons */
 }
 
 #large-form .bar, #dashboard .bar {

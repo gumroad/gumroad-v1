@@ -8,25 +8,15 @@ handlers:
 - url: .+/ 
   script: slashmurderer.py
     
-- url: /static/css
-  static_dir: static/css
-  
-- url: /static/js
-  static_dir: static/js
- 
+- url: /static
+  static_dir: static
+   
 - url: /downloads
   static_dir: downloads
  
 - url: /favicon.ico
   static_files: static/images/favicon.ico
   upload: static/images/favicon.ico
-
-
-- url: /static/images
-  static_dir: static/images
-
-- url: /static/fancybox
-  static_dir: static/fancybox
 
 - url: .*
   script: main.py
