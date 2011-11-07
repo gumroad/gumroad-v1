@@ -29,7 +29,6 @@ from google.appengine.api import mail
 from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
 
-import paypal
 import stripe
 
 from utils import post_multipart
@@ -64,13 +63,6 @@ class Purchase(db.Model):
     unique_permalink = db.StringProperty(required=True)
     price = db.FloatProperty(required=True)
     create_date = db.DateTimeProperty(auto_now_add=True)
-    
-class PayPalToken(db.Model):
-    owner = db.StringProperty(required=True)
-    unique_permalink = db.StringProperty(required=True)
-    url = db.StringProperty(required=True)
-    token = db.StringProperty(required=True)
-    price = db.FloatProperty(required=True, default=1.00)
 
 class Permalink(db.Model):
     permalink = db.StringProperty(required=True)
@@ -1118,163 +1110,6 @@ class AccountHandler(webapp.RequestHandler):
 
                 path = os.path.join(os.path.dirname(__file__), 'templates/account.html')
                 self.response.out.write(template.render(path, template_values))
-
-class ConfirmPaypalHandler(webapp.RequestHandler):
-    def get(self, permalink):
-        link = db.GqlQuery("SELECT * FROM Link WHERE unique_permalink = :permalink", permalink = permalink).get()
-        token_from_db = db.GqlQuery("SELECT * FROM PayPalToken WHERE unique_permalink = :permalink", permalink = permalink).get()
-        
-        if link == None or token_from_db == None:
-            self.redirect('/')
-        else:                                
-            live_details = {
-                'USER': 'hi_api1.gumroad.com',
-                'PWD': 'YV5JPWQ82Y94QKQ2',
-                'SIGNATURE': 'ACXdMRUVYdl2qjmy4bdvUB4tjmOdAqw-OBf6..cJoqJvjIuP9.RTfXLt',
-                'TOKEN': self.request.get('token'),
-                'PAYERID': self.request.get('PayerID')
-            }
-            
-            sandbox_details = {
-                'USER': 'sahil_1302387692_biz_api1.slavingia.com',
-                'PWD': '1302387704',
-                'SIGNATURE': 'AOPiL3Poyt2B15q5ShGBjL13Y0HpAPunEIy2.7fVjA5gyQHYvn3fnL.x',
-                'TOKEN': self.request.get('token'),
-                'PAYERID': self.request.get('PayerID')
-            }
-
-            #sandbox_url = 'https://api-3t.sandbox.paypal.com/nvp?METHOD=SetExpressCheckoutPayment&VERSION=63.0&' + urllib.urlencode(sandbox_details) + '&PAYMENTREQUEST_0_AMT=' + formatted_price(link.price) + '&PAYMENTREQUEST_0_PAYMENTACTION=Sale'
-            live_url = 'https://api-3t.paypal.com/nvp?METHOD=DoExpressCheckoutPayment&VERSION=64.0&' + urllib.urlencode(live_details) + '&PAYMENTREQUEST_0_AMT=' + formatted_price(link.price) + '&PAYMENTREQUEST_0_PAYMENTACTION=Sale'
-
-            success = False
-
-            #result = urlfetch.fetch(sandbox_url)
-            try:
-                result = urlfetch.fetch(live_url)
-                
-                if result.status_code == 200:
-                    logging.debug(result.content)
-                    logging.debug(urldecode(result.content)['ACK'][0])
-                    if urldecode(result.content)['ACK'][0] == 'Success':
-                        success = True                
-            except:
-                success = True
-
-            if success:                
-                link.number_of_paid_downloads += 1
-                link.number_of_downloads += 1
-                link.balance += link.price
-                link.put()
-
-                user = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = link.owner).get()
-
-                user.balance += link.price
-                user.put()
-
-                new_purchase = Purchase(owner=link.owner, price=float(link.price), unique_permalink=link.unique_permalink)
-                new_purchase.put()
-
-                message = mail.EmailMessage(sender="Gumroad <hi@gumroad.com>",
-                                            subject="You just sold a link!")
-                message.to = user.email
-
-                message.body="""
-                Hi!
-
-                You just sold %s. Please visit
-                http://gumroad.com/home to check it out.
-
-                Congratulations on the sale!
-
-                Please let us know if you have any questions,
-                The Gumroad Team
-                """ % link.name
-
-                try:
-                    message.send()
-                except:
-                    pass
-                
-                db.delete(token_from_db)
-                
-                self.redirect(link.url)
-            else:
-                self.redirect('/')
-        
-class PaypalHandler(webapp.RequestHandler):
-    def post(self, permalink):
-        links_from_db = db.GqlQuery("SELECT * FROM Link WHERE unique_permalink = :permalink", permalink = permalink)
-
-        if links_from_db.count() == 0:
-            self.response.headers['Content-Type'] = 'application/json'
-            self.response.out.write(json.dumps({
-                'error_message': 'Link doesn\'t exist!',
-                'show_error': True
-            }))
-        else:
-            link = links_from_db.get()
-            user = db.GqlQuery("SELECT * FROM User WHERE email = :email", email = link.owner).get()   
-
-            if link.number_of_downloads >= link.download_limit and link.download_limit > 0:
-                self.response.headers['Content-Type'] = 'application/json'
-                self.response.out.write(json.dumps({
-                    'error_message': 'This link has hit its download limit. Sorry!',
-                    'show_error': True
-                }))   
-            else:
-                live_details = {
-                    'USER': 'hi_api1.gumroad.com',
-                    'PWD': 'YV5JPWQ82Y94QKQ2',
-                    'SIGNATURE': 'ACXdMRUVYdl2qjmy4bdvUB4tjmOdAqw-OBf6..cJoqJvjIuP9.RTfXLt',
-                    'ORDERTOTAL': formatted_price(link.price),
-                    'RETURNURL': confirm_link_to_share(permalink),
-                    'CANCELURL': secure_link_to_share(permalink)
-                }
-            
-                sandbox_details = {
-                    'USER': 'sahil_1302387692_biz_api1.slavingia.com',
-                    'PWD': '1302387704',
-                    'SIGNATURE': 'AOPiL3Poyt2B15q5ShGBjL13Y0HpAPunEIy2.7fVjA5gyQHYvn3fnL.x',
-                    'ORDERTOTAL': formatted_price(link.price),
-                    'RETURNURL': confirm_link_to_share(permalink),
-                    'CANCELURL': secure_link_to_share(permalink)
-                }
-
-                #sandbox_url = 'https://api-3t.sandbox.paypal.com/nvp?METHOD=SetExpressCheckout&VERSION=63.0&' + urllib.urlencode(sandbox_details) + '&PAYMENTREQUEST_0_AMT=' + formatted_price(link.price) + '&PAYMENTREQUEST_0_PAYMENTACTION=Sale'
-                live_url = 'https://api-3t.paypal.com/nvp?METHOD=SetExpressCheckout&VERSION=64.0&' + urllib.urlencode(live_details) + '&PAYMENTREQUEST_0_AMT=' + formatted_price(link.price) + '&PAYMENTREQUEST_0_PAYMENTACTION=Sale'
-
-                #result = urlfetch.fetch(sandbox_url)
-                result = urlfetch.fetch(live_url)
-           
-                if result.status_code == 200:
-                
-                    paypal_token = PayPalToken(owner=link.owner, price=float(link.price), unique_permalink=link.unique_permalink, url = link.url, token = urldecode(result.content)['TOKEN'][0])
-                    paypal_token.put()
-                              
-                    self.response.headers['Content-Type'] = 'application/json'
-                    self.response.out.write(json.dumps({
-                        'success': True,
-                        'redirect_url': 'https://www.paypal.com/webscr?cmd=_express-checkout&token=' + urldecode(result.content)['TOKEN'][0]
-                    }))
-                else:                
-                    self.response.headers['Content-Type'] = 'application/json'
-                    self.response.out.write(json.dumps({
-                        'error_message': 'Something went wrong.',
-                        'show_error': True
-                    }))
-                  
-def urldecode(query): 
-   d = {} 
-   a = query.split('&') 
-   for s in a: 
-      if s.find('='): 
-         k,v = map(urllib.unquote, s.split('=')) 
-         try: 
-            d[k].append(v) 
-         except KeyError: 
-            d[k] = [v] 
-   return d 
-
                                                             
 class LinkHandler(webapp.RequestHandler):
     def get(self, permalink):
@@ -1649,8 +1484,6 @@ def main():
                                     	  ('/edit/(\S+)$', EditLinkHandler),
                                     	  ('/delete/(\S+)$', DeleteHandler),
                                     	  ('/l/(\S+)$', LinkHandler),
-                                    	  ('/paypal/(\S+)$', PaypalHandler),
-                                    	  ('/confirm/(\S+)$', ConfirmPaypalHandler),
                                     	  ('/api/create$', ApiCreateLinkHandler),
                                     	  ('/api/link/stats/(\S+)/(\S+)/(\S+)$', ApiLinkStatsHandler),
                                     	  ('/api/user/stats/(\S+)/(\S+)$', ApiStatsHandler),
