@@ -1449,6 +1449,17 @@ class ElsewhereHandler(webapp.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'templates/elsewhere.html')
         self.response.out.write(template.render(path, template_values))
         
+class FlickrHandler(webapp.RequestHandler):
+    def get(self):
+
+        template_values = {
+            'title': 'Gumroad - Flickr',
+            'body_id': 'app'
+        }
+
+        path = os.path.join(os.path.dirname(__file__), 'templates/flickr.html')
+        self.response.out.write(template.render(path, template_values))
+        
 class NotFoundPageHandler(webapp.RequestHandler):
     def get(self):
         self.error(404)
@@ -1461,7 +1472,6 @@ class NotFoundPageHandler(webapp.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'templates/404.html')
         self.response.out.write(template.render(path, template_values))
 
-
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
     application = webapp.WSGIApplication([('/', MainHandler),
@@ -1469,6 +1479,7 @@ def main():
                                     	  ('/faq', FAQHandler),
                                     	  ('/about', AboutHandler),
                                     	  ('/elsewhere', ElsewhereHandler),
+                                    	  ('/flickr', FlickrHandler),
                                     	  ('/login', LoginHandler),
                                     	  ('/settings', AccountHandler),
                                     	  ('/links', LinksHandler),

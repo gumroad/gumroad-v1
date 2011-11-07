@@ -106,3 +106,43 @@
 } #description-box p:last-child { margin: 0; }
 
 input[type=text]#card_security_code { width: 108px; }
+
+/* import for flickr + youtube etc. */
+
+#import-grid {
+    color: #797874;
+    font-size: 16px; line-height: 24px;
+    margin: 30px 0 0;
+    position: relative; left: -15px;
+}
+
+#import-grid ul { overflow: hidden; width: 990px; }
+
+#import-grid li {
+    float: left; width: 300px;
+    margin: 0 15px 30px;
+}
+
+    #import-grid li img { width: 100%; }
+
+    #import-grid li h4 {
+        font-size: 15px;
+        display: inline-block;
+        color: #343434;
+        margin: 8px 5px 8px 0;
+    }
+    
+    #import-grid li p {
+        display: inline-block;
+        padding-right: 20px;
+        font-size: 13px; line-height: 23px;
+    }
+    
+    #import-grid li p a {
+        color: #343434;
+    }
+
+
+
+
+

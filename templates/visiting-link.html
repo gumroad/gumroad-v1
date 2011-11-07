@@ -27,76 +27,75 @@
 	</script>
 	
 <div id="link-content">
-	
+
 	<div id="header">
 		<a href="/"><h1 id="logo">Gumroad</h1></a>
-		<p>Buying <strong>{{name}}</strong>{% if user_name %} from {{user_name}}{% endif %}</p>
+		<p>{% if user_name %}from {{user_name}}{% endif %}</p>
 	</div>
-	
+
 	{% if show_description %}
 		<div id="description-box">
 			<p>{{description}}</p>
 		</div>
 	{% endif %}
-	
-		<form id="large-form" name="large-form" action="" method="post">
 
-			<h3>Pay ${{ price }} to buy it:</h3>
+	<form id="large-form" name="large-form" action="" method="post">
+
+		<h3>Pay ${{ price }} for {{name}}</h3>
+		
+		<p>
+			<label for="card_number">Card Number:</label>
+			<input id="card_number" name="card_number" placeholder="Card number" size="30" type="text" {% if card_number %}value="{{card_number}}"{% endif %}/>
+		</p>		
+	
+		<p id="expiry_p">
+			<label for="date_month">Card Expiry Date:</label>
+				<select id="date_month" name="date_month">
+					<option {% ifequal expiry_month 1 %}selected="selected"{% endifequal %} value="1">January</option>
+					<option {% ifequal expiry_month 2 %}selected="selected"{% endifequal %} value="2">February</option>
+					<option {% ifequal expiry_month 3 %}selected="selected"{% endifequal %} value="3">March</option>
+					<option {% ifequal expiry_month 4 %}selected="selected"{% endifequal %} value="4">April</option>
+					<option {% ifequal expiry_month 5 %}selected="selected"{% endifequal %} value="5">May</option>
+					<option {% ifequal expiry_month 6 %}selected="selected"{% endifequal %} value="6">June</option>
+					<option {% ifequal expiry_month 7 %}selected="selected"{% endifequal %} value="7">July</option>
+					<option {% ifequal expiry_month 8 %}selected="selected"{% endifequal %} value="8">August</option>
+					<option {% ifequal expiry_month 9 %}selected="selected"{% endifequal %} value="9">September</option>
+					<option {% ifequal expiry_month 10 %}selected="selected"{% endifequal %} value="10">October</option>
+					<option {% ifequal expiry_month 11 %}selected="selected"{% endifequal %} value="11">November</option>
+					<option {% ifequal expiry_month 12 %}selected="selected"{% endifequal %} value="12">December</option>	
+				  </select> <span id="slash">/</span> <select id="date_year" name="date_year">
+					<option {% ifequal expiry_year 2011 %}selected="selected"{% endifequal %} value="2011">2011</option>
+					<option {% ifequal expiry_year 2012 %}selected="selected"{% endifequal %} value="2012">2012</option>
+					<option {% ifequal expiry_year 2013 %}selected="selected"{% endifequal %} value="2013">2013</option>
+					<option {% ifequal expiry_year 2014 %}selected="selected"{% endifequal %} value="2014">2014</option>
+					<option {% ifequal expiry_year 2015 %}selected="selected"{% endifequal %} value="2015">2015</option>
+					<option {% ifequal expiry_year 2016 %}selected="selected"{% endifequal %} value="2016">2016</option>
+					<option {% ifequal expiry_year 2017 %}selected="selected"{% endifequal %} value="2017">2017</option>
+					<option {% ifequal expiry_year 2018 %}selected="selected"{% endifequal %} value="2018">2018</option>
+					<option {% ifequal expiry_year 2019 %}selected="selected"{% endifequal %} value="2019">2019</option>
+					<option {% ifequal expiry_year 2020 %}selected="selected"{% endifequal %} value="2020">2020</option>
+					<option {% ifequal expiry_year 2021 %}selected="selected"{% endifequal %} value="2021">2021</option>
+					<option {% ifequal expiry_year 2022 %}selected="selected"{% endifequal %} value="2022">2022</option>
+					<option {% ifequal expiry_year 2023 %}selected="selected"{% endifequal %} value="2023">2023</option>
+					<option {% ifequal expiry_year 2024 %}selected="selected"{% endifequal %} value="2024">2024</option>
+					<option {% ifequal expiry_year 2025 %}selected="selected"{% endifequal %} value="2025">2025</option>
+					<option {% ifequal expiry_year 2026 %}selected="selected"{% endifequal %} value="2026">2026</option>
+					<option {% ifequal expiry_year 2027 %}selected="selected"{% endifequal %} value="2027">2027</option>
+					<option {% ifequal expiry_year 2028 %}selected="selected"{% endifequal %} value="2028">2028</option>
+					<option {% ifequal expiry_year 2029 %}selected="selected"{% endifequal %} value="2029">2029</option>
+					<option {% ifequal expiry_year 2030 %}selected="selected"{% endifequal %} value="2030">2030</option>
+					</select>
+			</p>
 			
 			<p>
-				<label for="card_number">Card Number:</label>
-				<input id="card_number" name="card_number" placeholder="Card number" size="30" type="text" {% if card_number %}value="{{card_number}}"{% endif %}/>
-			</p>		
-		
-			<p id="expiry_p">
-				<label for="date_month">Card Expiry Date:</label>
-					<select id="date_month" name="date_month">
-						<option {% ifequal expiry_month 1 %}selected="selected"{% endifequal %} value="1">January</option>
-						<option {% ifequal expiry_month 2 %}selected="selected"{% endifequal %} value="2">February</option>
-						<option {% ifequal expiry_month 3 %}selected="selected"{% endifequal %} value="3">March</option>
-						<option {% ifequal expiry_month 4 %}selected="selected"{% endifequal %} value="4">April</option>
-						<option {% ifequal expiry_month 5 %}selected="selected"{% endifequal %} value="5">May</option>
-						<option {% ifequal expiry_month 6 %}selected="selected"{% endifequal %} value="6">June</option>
-						<option {% ifequal expiry_month 7 %}selected="selected"{% endifequal %} value="7">July</option>
-						<option {% ifequal expiry_month 8 %}selected="selected"{% endifequal %} value="8">August</option>
-						<option {% ifequal expiry_month 9 %}selected="selected"{% endifequal %} value="9">September</option>
-						<option {% ifequal expiry_month 10 %}selected="selected"{% endifequal %} value="10">October</option>
-						<option {% ifequal expiry_month 11 %}selected="selected"{% endifequal %} value="11">November</option>
-						<option {% ifequal expiry_month 12 %}selected="selected"{% endifequal %} value="12">December</option>	
-					  </select> <span id="slash">/</span> <select id="date_year" name="date_year">
-						<option {% ifequal expiry_year 2011 %}selected="selected"{% endifequal %} value="2011">2011</option>
-						<option {% ifequal expiry_year 2012 %}selected="selected"{% endifequal %} value="2012">2012</option>
-						<option {% ifequal expiry_year 2013 %}selected="selected"{% endifequal %} value="2013">2013</option>
-						<option {% ifequal expiry_year 2014 %}selected="selected"{% endifequal %} value="2014">2014</option>
-						<option {% ifequal expiry_year 2015 %}selected="selected"{% endifequal %} value="2015">2015</option>
-						<option {% ifequal expiry_year 2016 %}selected="selected"{% endifequal %} value="2016">2016</option>
-						<option {% ifequal expiry_year 2017 %}selected="selected"{% endifequal %} value="2017">2017</option>
-						<option {% ifequal expiry_year 2018 %}selected="selected"{% endifequal %} value="2018">2018</option>
-						<option {% ifequal expiry_year 2019 %}selected="selected"{% endifequal %} value="2019">2019</option>
-						<option {% ifequal expiry_year 2020 %}selected="selected"{% endifequal %} value="2020">2020</option>
-						<option {% ifequal expiry_year 2021 %}selected="selected"{% endifequal %} value="2021">2021</option>
-						<option {% ifequal expiry_year 2022 %}selected="selected"{% endifequal %} value="2022">2022</option>
-						<option {% ifequal expiry_year 2023 %}selected="selected"{% endifequal %} value="2023">2023</option>
-						<option {% ifequal expiry_year 2024 %}selected="selected"{% endifequal %} value="2024">2024</option>
-						<option {% ifequal expiry_year 2025 %}selected="selected"{% endifequal %} value="2025">2025</option>
-						<option {% ifequal expiry_year 2026 %}selected="selected"{% endifequal %} value="2026">2026</option>
-						<option {% ifequal expiry_year 2027 %}selected="selected"{% endifequal %} value="2027">2027</option>
-						<option {% ifequal expiry_year 2028 %}selected="selected"{% endifequal %} value="2028">2028</option>
-						<option {% ifequal expiry_year 2029 %}selected="selected"{% endifequal %} value="2029">2029</option>
-						<option {% ifequal expiry_year 2030 %}selected="selected"{% endifequal %} value="2030">2030</option>
-						</select>
-				</p>
-				
-				<p>
-					<label for="card_security_code">Card Security Code:</label>
-					<input id="card_security_code" name="card_security_code" placeholder="Security code" size="10" type="text" {% if cvv %}value="{{cvv}}"{% endif %}/>
-				</p>
-				
-				<p class="last-p"><button type="submit" id="submit_button">Purchase</button></p>
-				
-				<div class="rainbow bar"></div>
-		</form>			
-	</div>
-	
+				<label for="card_security_code">Card Security Code:</label>
+				<input id="card_security_code" name="card_security_code" placeholder="Security code" size="10" type="text" {% if cvv %}value="{{cvv}}"{% endif %}/>
+			</p>
+			
+			<p class="last-p"><button type="submit" id="submit_button">Pay</button></p>
+			
+			<div class="rainbow bar"></div>
+	</form>
 </div>
+
 {% include "includes/footer.html" %}
