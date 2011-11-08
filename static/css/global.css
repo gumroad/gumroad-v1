@@ -58,6 +58,9 @@ input[type=text]:focus, input[type=password]:focus, textarea:focus {
     box-shadow: 0 0 5px rgba(0, 0, 0, .1);
 }
 
+::-webkit-input-placeholder  { color: #ccc; }
+input:-moz-placeholder { color: #ccc; }
+
 textarea { width: 320px; min-height: 100px; }
 
 select {

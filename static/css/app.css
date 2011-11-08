@@ -15,7 +15,7 @@
 #app #large-form input, #app textarea { width: 706px; margin-right: 0; }
 
 #app #large-form button, #link #large-form button { margin-left: 170px; padding: 11px 15px 12px; }
-#create-link-button { float: right; margin-bottom: 0; }
+#add-link-button { float: right; margin-bottom: 0; }
 #delete_link { float: right; }
 #dashboard.links-page h3 { padding-top: 10px; margin-bottom: 5px; }
 

@@ -736,7 +736,7 @@ class AddLinkHandler(webapp.RequestHandler): #add link
     	        'user_email': email,
     	        'number_of_links': len(links),
     	        'links': links,
-    	        'title': 'Gumroad - Create Link',
+    	        'title': 'Gumroad - Add Link',
     	        'user_balance': formatted_price(user.balance)
     		}
 
@@ -811,7 +811,7 @@ class AddLinkHandler(webapp.RequestHandler): #add link
                     'upload_url': upload_url,
         	        'number_of_links': len(links),
         	        'links': links,
-        	        'title': 'Gumroad - Create Link',
+        	        'title': 'Gumroad - Add Link',
         	        'user_balance': formatted_price(user.balance),
     		        'show_error': True,
     		        'error_message': error_message
@@ -1510,11 +1510,12 @@ def main():
                                     	  ('/reset-password/(\S+)$', ResetPasswordHandler),
                                     	  ('/password-reset/(\S+)$', ResetPasswordHandler),
                                     	  ('/forgot-password', ForgotPasswordHandler),
-                                    	  ('/create', AddLinkHandler),
+                                    	  ('/add', AddLinkHandler),
                                     	  ('/edit/(\S+)$', EditLinkHandler),
                                     	  ('/delete/(\S+)$', DeleteHandler),
                                     	  ('/l/(\S+)$', LinkHandler),
                                     	  ('/api/create$', ApiCreateLinkHandler),
+                                    	  ('/api/add$', ApiCreateLinkHandler),
                                     	  ('/api/link/stats/(\S+)/(\S+)/(\S+)$', ApiLinkStatsHandler),
                                     	  ('/api/user/stats/(\S+)/(\S+)$', ApiStatsHandler),
                                     	  ('/api/purchase$', ApiPurchaseLinkHandler),

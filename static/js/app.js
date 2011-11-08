@@ -20,12 +20,6 @@ $(document).ready(function() {
         }
     }, 600);
     
-    
-    
-    
-    
-    
-    
     window.show_loading = show_loading; 
     window.hide_loading = hide_loading; 
 });
