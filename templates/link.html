@@ -63,7 +63,7 @@
 	    $(function() {
 	      var uploader = new plupload.Uploader({
 	        runtimes: 'gears,html5,flash,html4',
-	        browse_button: 'pickfiles',
+	        browse_button: 'pickfile',
 	        container: 'container',
 	        url: '{{upload_url}}',
 	                                use_query_string: false,
@@ -71,31 +71,51 @@
 	                                flash_swf_url: '/static/plupload/plupload.flash.swf',
 	      });
 	      uploader.bind('FilesAdded', function(up, files) {
-	        $.each(files, function(i, file) {
-	          $('#filelist').append(
-	            '<div id="' + file.id + '">' +
-	            'File: ' + file.name + ' (' + plupload.formatSize(file.size) + ') <b></b>' +
-	            '</div>'
-	          );
-	        });
 	      });
 	      uploader.bind('UploadProgress', function(up, file) {
-			$('#pickfiles').html(file.percent + '% done uploading...');
-	        $('#' + file.id + ' b').html(file.percent + '%');
+			$('#pickfile').html(file.percent + '% done uploading...');
 	      });
 	      uploader.bind('FileUploaded', function(up, file, response) {
 			$("#url").val(response.response);
-			$('#pickfiles').html('Uploaded!').addClass('hidden');
+			$('#pickfile').html('Uploaded!').addClass('hidden');
 	      });
 	      uploader.bind('Error', function(up, err) {
-			$('#pickfiles').html("Upload error: " + err.message);
+			$('#pickfile').html("Upload error: " + err.message);
 	      });
 	      uploader.bind('QueueChanged', function(up) {
-			$('#pickfiles').html('Upload started...');
+			$('#pickfile').html('Upload started...');
 	        uploader.start();
 	      });
 
 	      uploader.init();
+	
+	      var uploader2 = new plupload.Uploader({
+	        runtimes: 'gears,html5,flash,html4',
+	        browse_button: 'pickpreviewfile',
+	        container: 'preview_container',
+	        url: '{{upload_url}}',
+	                                use_query_string: false,
+	                                multipart: true,
+	                                flash_swf_url: '/static/plupload/plupload.flash.swf',
+	      });
+	      uploader2.bind('FilesAdded', function(up, files) {
+	      });
+	      uploader2.bind('UploadProgress', function(up, file) {
+			$('#pickpreviewfile').html(file.percent + '% done uploading...');
+	      });
+	      uploader2.bind('FileUploaded', function(up, file, response) {
+			$("#preview_url").val(response.response);
+			$('#pickpreviewfile').html('Uploaded!').addClass('hidden');
+	      });
+	      uploader2.bind('Error', function(up, err) {
+			$('#pickpreviewfile').html("Upload error: " + err.message);
+	      });
+	      uploader2.bind('QueueChanged', function(up) {
+			$('#pickpreviewfile').html('Upload started...');
+	        uploader2.start();
+	      });
+
+	      uploader2.init();
 	    });
 	  </script>
 
@@ -132,14 +152,13 @@
 		<p>
 			<label for="url">URL:</label>
 			<input id="url" name="url" type="text" placeholder="http://" {% if url %}value="{{ url }}"{% endif %} />
-			<div id="container"><a id="pickfiles" href="#">Or click to upload a file...</a></div>
+			<div id="container"><a id="pickfile" href="#">Or click to upload a file...</a></div>
 		</p>
-		<!-- <p>
-			<label for="file"></label>
-			<span id="file-uploader-wrapper">
-				<div id="container"><a id="pickfiles" href="#">Or click to upload a file...</a></div>
-			</span>
-		</p> -->
+		<p>
+			<label for="preview_url">Preview URL:</label>
+			<input id="preview_url" name="preview_url" type="text" placeholder="http://" {% if preview_url %}value="{{ preview_url }}"{% endif %} />
+			<div id="preview_container"><a id="pickpreviewfile" href="#">Or click to upload a file...</a></div>
+		</p>
 		<p>
 			<label for="description">Description:<br /><span class="faint">(optional)</span></label>
 			<textarea id="description" name="description">{% if description %}{{ description }}{% endif %}</textarea>

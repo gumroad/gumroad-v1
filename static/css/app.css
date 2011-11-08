@@ -73,9 +73,9 @@
     
     .twitter.button:hover { box-shadow: inset 0 0 2px rgba(255, 255, 255, .2), 0 1px 1px rgba(0, 0, 0, .4), 0 0 5px #28add9; }
 
-    #container { float: right; position: relative; text-align: right; top: -30px; right: 20px; z-index: 2; }
-        #container a { color: #aaa; }
-        #container a:hover { text-decoration: underline; }
+    #container, #preview_container { float: right; position: relative; text-align: right; top: -30px; right: 20px; z-index: 2; }
+        #container a, #preview_container a { color: #aaa; }
+        #container a:hover, #preview_container a:hover { text-decoration: underline; }
 
 #analytics-box { text-align: center; margin: 20px auto 0; height: 28px; }
     #analytics-box p { width: 100%; padding: 0; }
@@ -89,7 +89,7 @@
 #link #link-content { width: 100%; padding: 30px 0; }
 
 #link #header { padding-bottom: 30px; }
-
+    #link #preview_link { float: right; }
     #link #header h1 { margin: 0; }
     #link #header p { margin-top: 8px; color: #797874; }
     #link #header p strong { color: #252a2d; }

@@ -28,6 +28,7 @@ a:active { color: #26898e; text-decoration: none; }
     .background { position: relative; top: -22px; z-index: -1; }
 .rainbow { background: url(../images/rainbow-bar.png); }
 .faint { opacity: .4; }
+#loading-indicator { background: rgba(0, 0, 0, .1); text-align: center; padding: 10px; font-weight: bold; color: #fff; text-shadow: 0 0px 2px rgba(0, 0, 0, .4); position: absolute; display: none; width: 940px; }
 
 #wrapper {
     min-height: 100%;

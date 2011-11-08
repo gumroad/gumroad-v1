@@ -31,8 +31,6 @@ from google.appengine.ext.webapp import blobstore_handlers
 
 import stripe
 
-from utils import post_multipart
-
 #ROOT_URL = 'http://localhost:8888'
 ROOT_URL = 'http://www.gumroad.com'
 
@@ -41,6 +39,7 @@ class Link(db.Model):
     name = db.StringProperty(required=True)
     unique_permalink = db.StringProperty(required=True)
     url = db.StringProperty(required=True)
+    preview_url = db.StringProperty()
     description = db.StringProperty(multiline=True)
     price = db.FloatProperty(required=True, default=1.00)
     create_date = db.DateTimeProperty(auto_now_add=True)
@@ -577,6 +576,7 @@ class EditLinkHandler(webapp.RequestHandler): #edit link
                     'conversion': conversion,
                     'hundred_minus_conversion': hundred_minus_conversion,
                     'url': link.url,
+                    'preview_url': link.preview_url,
                     'upload_url': upload_url,
                     'description': link.description,
         	        'show_login_link': False,
@@ -610,6 +610,7 @@ class EditLinkHandler(webapp.RequestHandler): #edit link
         price = non_decimal.sub('', price)
 
         url = cgi.escape(request.get('url'))
+        preview_url = cgi.escape(request.get('preview_url'))
         description = cgi.escape(request.get('description'))
         download_limit = cgi.escape(request.get('download_limit'))
 
@@ -643,6 +644,7 @@ class EditLinkHandler(webapp.RequestHandler): #edit link
                     link.download_limit = int(download_limit)
                     link.description = description
                     link.url = url
+                    link.preview_url = preview_url
                     link.price = float(price)
                     link.put()
                     success = True
@@ -655,6 +657,7 @@ class EditLinkHandler(webapp.RequestHandler): #edit link
                 'url_encoded_name': urllib.quote(name),
     	        'price': '$' + price,
     	        'url': url,
+    	        'preview_url': preview_url,
     	        'description': description,
                 'download_limit': link.download_limit,
                 'link_to_share': link_to_share(permalink),
@@ -680,7 +683,7 @@ class FileHandler(blobstore_handlers.BlobstoreDownloadHandler): #file download
         f = db.GqlQuery("SELECT * FROM File WHERE unique_permalink = :permalink", permalink = permalink).get()
 
         if not f:
-            return self.redirect('/404')
+            return show_404(self)
 
         blob_key = f.blob_key
         blob_info = blobstore.BlobInfo.get(blob_key)
@@ -706,7 +709,7 @@ class FileUploadHandler(blobstore_handlers.BlobstoreUploadHandler): #file upload
 
         return self.redirect('/f/%s/%s/success' % (permalink, upload.filename))
 
-class AjaxSuccessHandler(webapp.RequestHandler):
+class AjaxSuccessHandler(webapp.RequestHandler): #ajax success
   def get(self, file_id):
     self.response.headers['Content-Type'] = 'text/plain'
     self.response.out.write('%s/f/%s' % (self.request.host_url, file_id))
@@ -755,6 +758,7 @@ class AddLinkHandler(webapp.RequestHandler): #add link
             non_decimal = re.compile(r'[^\d.]+')
             price = non_decimal.sub('', price)
             url = cgi.escape(self.request.get('url'))
+            preview_url = cgi.escape(self.request.get('preview_url'))
             description = cgi.escape(self.request.get('description'))
 
             if not name or not price or not url:
@@ -781,6 +785,7 @@ class AddLinkHandler(webapp.RequestHandler): #add link
                             x = 0
 
                     new_link = Link(owner=email, name=name, url=url, price=float(price), unique_permalink=permalink)
+                    new_link.preview_url = preview_url
                     new_link.description = description
                     new_link.put()
 
@@ -792,6 +797,8 @@ class AddLinkHandler(webapp.RequestHandler): #add link
             if success:
                 self.redirect("/edit/" + permalink)
             else:
+                upload_url = blobstore.create_upload_url('/upload')
+                
                 template_values = {
     		        'name': name,
     		        'price': '$' + price,
@@ -801,6 +808,7 @@ class AddLinkHandler(webapp.RequestHandler): #add link
         	        'logged_in': True,
         	        'body_id': 'app',
         	        'user_email': email,
+                    'upload_url': upload_url,
         	        'number_of_links': len(links),
         	        'links': links,
         	        'title': 'Gumroad - Create Link',
@@ -1111,7 +1119,7 @@ class AccountHandler(webapp.RequestHandler):
                 path = os.path.join(os.path.dirname(__file__), 'templates/account.html')
                 self.response.out.write(template.render(path, template_values))
                                                             
-class LinkHandler(webapp.RequestHandler):
+class LinkHandler(webapp.RequestHandler): #viewing link
     def get(self, permalink):
 
         if self.request.url.startswith('http://www.gumroad.com/'):
@@ -1120,7 +1128,7 @@ class LinkHandler(webapp.RequestHandler):
         links_from_db = db.GqlQuery("SELECT * FROM Link WHERE unique_permalink = :permalink", permalink = permalink)
 
         if links_from_db.count() == 0:
-            self.redirect("/")
+            return show_404(self)
         else:
             link = links_from_db.get()
             link.number_of_views += 1
@@ -1146,6 +1154,7 @@ class LinkHandler(webapp.RequestHandler):
                 'hide_header': True,
                 'hide_footer': True,
                 'permalink': permalink,
+                'preview_url': link.preview_url,
                 'description': description,
                 'show_description': show_description,
                 'user_name': user.name,
@@ -1380,6 +1389,10 @@ class ApiStatsHandler(webapp.RequestHandler):
         
 class StatsHandler(webapp.RequestHandler):
     def get(self):
+        
+        if not cgi.escape(self.request.get('omg')) == 'yes':
+            return show_404(self)
+        
         links_from_db = Link.all().fetch(9999)
         users_from_db = User.all().fetch(9999)
         purchases_from_db = Purchase.all().fetch(9999)
@@ -1421,6 +1434,7 @@ class FAQHandler(webapp.RequestHandler):
     def get(self):
 
         template_values = {
+            'title': 'Gumroad - FAQ',
             'body_id': 'static-content'
         }
 
@@ -1460,17 +1474,22 @@ class FlickrHandler(webapp.RequestHandler):
         path = os.path.join(os.path.dirname(__file__), 'templates/flickr.html')
         self.response.out.write(template.render(path, template_values))
         
+def show_404(self):
+    self.error(404)
+
+    template_values = {
+        'title': 'Gumroad - 404',
+        'body_id': 'fourohfour',
+        'hide_header': True,
+        'hide_footer': True
+    }
+    
+    path = os.path.join(os.path.dirname(__file__), 'templates/404.html')
+    self.response.out.write(template.render(path, template_values))
+
 class NotFoundPageHandler(webapp.RequestHandler):
     def get(self):
-        self.error(404)
-        template_values = {
-            'title': 'Gumroad - 404',
-            'body_id': 'fourohfour',
-            'hide_header': True,
-            'hide_footer': True
-        }
-        path = os.path.join(os.path.dirname(__file__), 'templates/404.html')
-        self.response.out.write(template.render(path, template_values))
+        show_404(self)
 
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
