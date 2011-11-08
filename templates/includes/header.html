@@ -6,7 +6,8 @@
 {% include "includes/head.html" %}
 <body{% if body_id %} id="{{ body_id }}"{% endif %}>
 	<div class="top-bar"></div>
-	
+	<div id="loading-indicator">Loading...</div>
+
 	<div id="wrapper">
 		{% if not hide_header %}
 		<div id="header">

@@ -4,17 +4,14 @@ $(document).ready(function() {
 
     var show_loading = function() {
         is_loading = true;
-        $('#loading-indicator').slideDown();
+        $('#loading-indicator').slideDown('fast');
     }
 
     var hide_loading = function() {
         $('#loading-bar').stop();
-        $('#loading-indicator').slideUp();
+        $('#loading-indicator').slideUp('fast');
         is_loading = false;
     }
-
-    window.show_loading = show_loading; 
-    window.hide_loading = hide_loading; 
     
     var animate_loading_bar = setInterval(function() {
         if (is_loading) {
@@ -22,4 +19,13 @@ $(document).ready(function() {
             $('#loading-bar').animate({backgroundPosition: loading_bar_background_offset + 'px 0'}, 600, 'linear');
         }
     }, 600);
+    
+    
+    
+    
+    
+    
+    
+    window.show_loading = show_loading; 
+    window.hide_loading = hide_loading; 
 });

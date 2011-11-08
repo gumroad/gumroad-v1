@@ -19,6 +19,23 @@
 #delete_link { float: right; }
 #dashboard.links-page h3 { padding-top: 10px; margin-bottom: 5px; }
 
+#loading-indicator {
+    background: rgba(0, 0, 0, .1); text-align: center; padding: 12px 20px 10px; font-weight: bold; color: #fff; text-shadow: 0 -1px 0 rgba(0, 0, 0, .4); width: 100px; left: 50%;
+    border-top: 1px solid rgba(0, 0, 0, .1);
+    margin-left: -90px;
+    position: absolute; z-index: 999;
+    bottom: 0;
+    
+    -webkit-border-top-left-radius: 10px;
+    -webkit-border-top-right-radius: 10px;
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    
+    display: none;
+}
+
 #large-form .mini-rule, #dashboard .mini-rule { margin-top: 30px; clear: both; }
 
 #links { padding: 8px 0 0; }
